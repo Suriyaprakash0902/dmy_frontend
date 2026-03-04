@@ -26,33 +26,7 @@ export default function Landing() {
                 <div className="flex-1 flex flex-col items-center justify-end pb-12">
                     {/* DMY Logo */}
                     <div className="text-center">
-                        <div
-                            className="font-playfair font-black leading-none tracking-widest"
-                            style={{
-                                fontSize: '72px',
-                                color: '#C9A84C',
-                                textShadow: '0 2px 20px rgba(201, 168, 76, 0.4)',
-                                letterSpacing: '0.08em'
-                            }}>
-                            DMY
-                        </div>
-                        <div
-                            className="font-playfair font-bold tracking-[0.4em] text-white"
-                            style={{
-                                fontSize: '18px',
-                                letterSpacing: '0.45em'
-                            }}>
-                            JEWELLERS
-                        </div>
-                        <div
-                            className="font-inter font-light tracking-[0.35em] mt-1"
-                            style={{
-                                fontSize: '11px',
-                                color: 'rgba(255,255,255,0.7)',
-                                letterSpacing: '0.4em'
-                            }}>
-                            SINGAPORE
-                        </div>
+                        <img src="/logo-main.png" alt="DMY Jewellers" className="w-48 md:w-64 h-auto drop-shadow-2xl" />
                     </div>
                 </div>
 

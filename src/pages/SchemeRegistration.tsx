@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, X } from "lucide-react";
 import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
 
@@ -10,6 +10,7 @@ export default function SchemeRegistration() {
     const [nric, setNric] = useState('');
     const [showNric, setShowNric] = useState(false);
     const [isNricFocused, setIsNricFocused] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
 
     const [blockNo, setBlockNo] = useState('');
     const [floorNo, setFloorNo] = useState('');
@@ -171,7 +172,7 @@ export default function SchemeRegistration() {
                         <div className="flex justify-center items-center mt-3 pt-4">
                             <label className="flex items-center space-x-2 text-xs text-gray-800 font-medium cursor-pointer">
                                 <input type="checkbox" checked={agreeTerm} onChange={(e) => setAgreeTerm(e.target.checked)} className="form-checkbox h-4 w-4 text-black border-gray-300 rounded-sm focus:ring-black accent-black" />
-                                <span>Agree <span className="font-bold underline underline-offset-2">Terms & Conditions</span></span>
+                                <span>Agree to <span onClick={(e) => { e.preventDefault(); setShowTerms(true); }} className="font-bold underline underline-offset-2 text-[#C9A84C] hover:text-black transition-colors">Terms & Conditions</span></span>
                             </label>
                         </div>
 
@@ -181,6 +182,46 @@ export default function SchemeRegistration() {
                     </form>
                 </div>
             </div>
+
+            {/* T&C Modal */}
+            {showTerms && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in cursor-default">
+                    <div className="bg-white rounded-2xl w-full max-w-sm max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
+                        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#FAFAFA]">
+                            <h2 className="text-lg font-bold text-gray-900 font-serif">Terms & Conditions</h2>
+                            <button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-black transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-5 overflow-y-auto font-inter text-sm text-gray-700 space-y-4 max-h-[60vh] leading-relaxed">
+                            <p className="font-semibold text-black mb-2">Please read carefully</p>
+                            <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus. Members who fail to do so will not be eligible for the 13th month bonus.</p>
+                            <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid. i.e., When a member, who joins the scheme on 1st January 2024, fails to make their monthly instalment for any one month, their scheme will lapse by 1 month causing the scheme period to end on 1st February 2025. Such members can redeem jewellery worth their savings and 13th month bonus after 1st March 2025 or 30 days after their last timely payment.</p>
+                            <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period. Members who wish to redeem their jewellery at an earlier date will not be eligible for the 13th month bonus.</p>
+                            <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                            <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                            <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                            <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption. Members who wish to redeem jewellery in conjunction with any special offers or promotions will have to forgo their 13th month bonus.</p>
+                            <p>8) Workmanship and other relevant charges will be levied additionally, according to the type of jewellery purchased.</p>
+                            <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                            <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                            <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID (NRIC, Driving Licence) for verification purpose during redemption.</p>
+                            <p>12) DMY Jewellery Pte Ltd gives full guarantee to members for all funds deposited in the Gold Saving Scheme.</p>
+                            <p>13) DMY Jewellery Pte Ltd may, at its sole discretion, with or without prior notice at any time, amend or revise the terms and conditions which will supersede the previous terms and conditions. All members hereby accept the terms and conditions as amended from time to time.</p>
+                            <p>14) Please visit dmyjewellery.com to view updated term and conditions.</p>
+                            <p>15) Any instalment payments made via Debit Cards or Credit Cards will incur 4% administrative charges.</p>
+                            <p>16) ATM transfer not accepted.</p>
+                        </div>
+                        <div className="p-4 border-t border-gray-100 bg-white">
+                            <button
+                                onClick={() => { setAgreeTerm(true); setShowTerms(false); }}
+                                className="w-full py-3 rounded-xl bg-black text-white font-bold transition-transform active:scale-[0.98]">
+                                I Agree
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

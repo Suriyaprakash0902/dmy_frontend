@@ -84,30 +84,7 @@ export default function Login() {
 
                 {/* DMY Logo */}
                 <div className="text-center">
-                    <div
-                        className="font-playfair font-black leading-none"
-                        style={{
-                            fontSize: '42px',
-                            color: '#C9A84C',
-                            letterSpacing: '0.08em'
-                        }}>
-                        DMY
-                    </div>
-                    <div
-                        className="font-playfair font-bold tracking-[0.35em] text-white"
-                        style={{
-                            fontSize: '12px'
-                        }}>
-                        JEWELLERS
-                    </div>
-                    <div
-                        className="font-inter font-light tracking-[0.3em] mt-0.5"
-                        style={{
-                            fontSize: '9px',
-                            color: 'rgba(255,255,255,0.6)'
-                        }}>
-                        SINGAPORE
-                    </div>
+                    <img src="/logo-main.png" alt="DMY Jewellers" className="w-40 md:w-56 h-auto drop-shadow-xl" />
                 </div>
             </div>
 

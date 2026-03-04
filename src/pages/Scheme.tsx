@@ -15,7 +15,8 @@ export default function Scheme() {
     const [confirmBuyModal, setConfirmBuyModal] = useState(false);
 
     const [buyMonth, setBuyMonth] = useState('');
-    const currentGoldRate = 175.30;
+    const [currentGoldRate, setCurrentGoldRate] = useState<number>(175.30);
+    const [isBuying, setIsBuying] = useState(false);
 
     const fetchSchemeData = () => {
         setIsLoading(true);
@@ -39,7 +40,18 @@ export default function Scheme() {
             });
     };
 
+    const fetchGoldRate = () => {
+        httpService.get('/api/gold-rates/today')
+            .then((data: any) => {
+                if (data.rate && data.rate.rate22k) {
+                    setCurrentGoldRate(data.rate.rate22k);
+                }
+            })
+            .catch(console.error);
+    };
+
     useEffect(() => {
+        fetchGoldRate();
         fetchSchemeData();
     }, []);
 
@@ -57,6 +69,7 @@ export default function Scheme() {
 
     const processBuy = async () => {
         setConfirmBuyModal(false);
+        setIsBuying(true);
         const amount = schemeData.amount;
         const gramAccumulated = Number((amount / currentGoldRate).toFixed(4));
 
@@ -78,6 +91,8 @@ export default function Scheme() {
             fetchSchemeData(); // Refreshes the vault data natively via endpoint
         } catch (error: any) {
             toast.error(error.message || 'Failed to complete transaction', { duration: 5000 });
+        } finally {
+            setIsBuying(false);
         }
     };
 
@@ -155,9 +170,20 @@ export default function Scheme() {
 
                         <button
                             onClick={handleBuy}
-                            className="w-full py-4 bg-[#1a1a1a] text-white rounded-xl font-bold font-inter tracking-wide shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:bg-black transition-all active:scale-[0.98]"
+                            disabled={isBuying}
+                            className={`w-full py-4 text-white rounded-xl font-bold font-inter tracking-wide transition-all shadow-md ${isBuying ? 'bg-gray-400 cursor-wait' : 'bg-[#1a1a1a] shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:bg-black active:scale-[0.98]'}`}
                         >
-                            Buy
+                            {isBuying ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Processing...
+                                </span>
+                            ) : (
+                                "Buy"
+                            )}
                         </button>
                     </div>
 
@@ -313,12 +339,24 @@ export default function Scheme() {
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="p-5 overflow-y-auto font-inter text-sm text-gray-600 space-y-4">
-                            <p>1. Only one payment per month is generally permitted.</p>
-                            <p>2. You may make an advance payment for up to 2 months only ONCE during the 12-month period.</p>
-                            <p>3. If you miss a payment for 1 month, a warning will be displayed on your dashboard.</p>
-                            <p>4. If you miss a payment for 2 consecutive months, your account is at risk of foreclosure and you must contact the admin.</p>
-                            <p>5. Scheme closes upon completion of 12 payments.</p>
+                        <div className="p-5 overflow-y-auto font-inter text-sm text-gray-600 space-y-4 max-h-[50vh]">
+                            <p className="font-semibold text-black">Terms and Conditions</p>
+                            <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus. Members who fail to do so will not be eligible for the 13th month bonus.</p>
+                            <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid. i.e., When a member, who joins the scheme on 1st January 2024, fails to make their monthly instalment for any one month, their scheme will lapse by 1 month causing the scheme period to end on 1st February 2025. Such members can redeem jewellery worth their savings and 13th month bonus after 1st March 2025 or 30 days after their last timely payment.</p>
+                            <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period. Members who wish to redeem their jewellery at an earlier date will not be eligible for the 13th month bonus.</p>
+                            <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                            <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                            <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                            <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption. Members who wish to redeem jewellery in conjunction with any special offers or promotions will have to forgo their 13th month bonus.</p>
+                            <p>8) Workmanship and other relevant charges will be levied additionally, according to the type of jewellery purchased.</p>
+                            <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                            <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                            <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID (NRIC, Driving Licence) for verification purpose during redemption.</p>
+                            <p>12) DMY Jewellery Pte Ltd gives full guarantee to members for all funds deposited in the Gold Saving Scheme.</p>
+                            <p>13) DMY Jewellery Pte Ltd may, at its sole discretion, with or without prior notice at any time, amend or revise the terms and conditions which will supersede the previous terms and conditions. All members hereby accept the terms and conditions as amended from time to time.</p>
+                            <p>14) Please visit dmyjewellery.com to view updated term and conditions.</p>
+                            <p>15) Any instalment payments made via Debit Cards or Credit Cards will incur 4% administrative charges.</p>
+                            <p>16) ATM transfer not accepted.</p>
                         </div>
                         <div className="p-5 border-t border-gray-100 bg-gray-50">
                             <label className="flex items-center gap-2 cursor-pointer mb-4">
