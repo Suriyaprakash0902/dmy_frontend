@@ -17,8 +17,8 @@ export default {
         'gold-gradient': 'linear-gradient(135deg, #F3E5AB 0%, #D4AF37 100%)',
       },
       fontFamily: {
-        serif: ['"Cinzel"', 'serif'],
-        sans: ['"Inter"', '"Outfit"', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
+        sans: ['"Inter"', 'sans-serif'],
       },
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',

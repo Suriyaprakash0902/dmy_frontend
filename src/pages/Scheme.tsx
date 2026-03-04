@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, ShieldCheck, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
+import { playGoldSound } from "../utils/sounds";
 
 export default function Scheme() {
     const navigate = useNavigate();
@@ -25,7 +27,6 @@ export default function Scheme() {
                 if (data.hasScheme) {
                     setHasScheme(true);
                     setSchemeData(data.scheme);
-                    // auto-select next month
                     if (data.scheme.payments) {
                         setBuyMonth(String(data.scheme.payments.length + 1));
                     }
@@ -56,10 +57,12 @@ export default function Scheme() {
     }, []);
 
     const handleApplyNow = () => {
+        playGoldSound();
         setShowTerms(true);
     };
 
     const handleBuy = () => {
+        playGoldSound();
         if (!buyMonth) {
             toast.error('Please select a valid month.');
             return;
@@ -81,14 +84,19 @@ export default function Scheme() {
                 gramAccumulated: gramAccumulated,
                 amountPaid: amount
             });
+            playGoldSound();
             confetti({
-                particleCount: 150,
-                spread: 80,
-                origin: { y: 0.6 },
-                colors: ['#FFD700', '#DAA520', '#B8860B', '#F0E68C', '#FFF8DC'] // Gold palette
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.5 },
+                colors: ['#FFD700', '#D4AF37', '#FFF8DC']
             });
-            toast.success('Gold successfully bought and accumulated!', { duration: 4000, style: { background: '#1a1a1a', color: '#fff', border: '1px solid #C9A84C' }, iconTheme: { primary: '#C9A84C', secondary: '#fff' } });
-            fetchSchemeData(); // Refreshes the vault data natively via endpoint
+            toast.success('Gold successfully secured in Vault!', {
+                duration: 4000,
+                style: { background: '#0B2B21', color: '#D4AF37', border: '1px solid #D4AF37' },
+                iconTheme: { primary: '#D4AF37', secondary: '#0B2B21' }
+            });
+            fetchSchemeData();
         } catch (error: any) {
             toast.error(error.message || 'Failed to complete transaction', { duration: 5000 });
         } finally {
@@ -97,287 +105,355 @@ export default function Scheme() {
     };
 
     if (isLoading) {
-        return <div className="p-10 text-center flex-grow font-sans pt-20">Loading...</div>;
+        return (
+            <div className="flex-grow flex items-center justify-center min-h-screen bg-[#050505]">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                    className="w-12 h-12 border-4 border-[#10241C] border-t-[#D4AF37] rounded-full"
+                />
+            </div>
+        );
     }
 
     if (hasScheme && schemeData) {
-        // Calculate totals dynamically purely from actual API payments
         const totalGrams = schemeData.payments?.reduce((acc: number, p: any) => acc + (Number(p.gramAccumulated) || 0), 0) || 0;
         const monthsCompleted = schemeData.payments?.length || 0;
 
         return (
-            <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#FFFDF0] to-white pb-32 font-sans">
-                {/* Header */}
-                <div className="flex items-center space-x-4 p-6 relative">
-                    <Link to="/home" className="text-gray-900 hover:scale-110 transition-transform">
-                        <ArrowLeft size={24} />
-                    </Link>
-                    <div className="flex justify-between w-full pr-2 items-center">
-                        <h1 className="text-xl font-bold font-sans">Vault</h1>
-                        <h2 className="text-2xl font-serif text-primary-gold italic drop-shadow-sm font-light">
-                            Easy 12 Gold Scheme
-                        </h2>
-                    </div>
+            <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-hidden">
+                {/* Background ambient glow */}
+                <div className="fixed inset-0 pointer-events-none z-0">
+                    <motion.div
+                        animate={{ opacity: [0.1, 0.2, 0.1] }}
+                        transition={{ duration: 6, repeat: Infinity }}
+                        className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[100px] bg-gradient-radial from-[#D4AF37] to-transparent opacity-10"
+                    />
                 </div>
 
-                <div className="px-5 mt-2 flex-grow">
-                    {/* Buy 22K Gold Panel */}
-                    <div className="mb-8">
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h2 className="text-3xl font-black text-[#C9A84C] tracking-tight">Buy 22K Gold</h2>
-                                <p className="text-gray-800 font-medium text-sm mt-1">12 Month Saving Scheme</p>
-                            </div>
-                            <div className="bg-white px-4 py-2 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.06)] border border-gray-100 flex flex-col items-center">
-                                <span className="text-xl mb-1 mt-0.5" role="img" aria-label="Singapore">🇸🇬</span>
-                                <span className="text-[10px] font-bold text-gray-800">Per gram / S $ {currentGoldRate.toFixed(2)}</span>
+                {/* Header */}
+                <motion.div
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                    className="relative w-full flex items-center p-6 shadow-2xl z-20"
+                    style={{
+                        background: 'linear-gradient(180deg, rgba(11,43,33,1) 0%, rgba(5,5,5,1) 100%)',
+                        borderBottom: '1px solid rgba(212,175,55,0.1)'
+                    }}
+                >
+                    <Link to="/home" className="text-[#D4AF37] hover:scale-110 transition-transform">
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <h1 className="text-xl font-serif text-[#D4AF37] ml-4 font-light tracking-widest uppercase">The Vault</h1>
+                    <div className="ml-auto">
+                        <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                    </div>
+                </motion.div>
+
+                <div className="px-5 mt-6 flex-grow z-10">
+                    {/* Vault Digital Card */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8 }}
+                        className="relative w-full aspect-[1.6] rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-[rgba(212,175,55,0.3)]"
+                    >
+                        {/* Shimmering background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#1C180E] via-[#0A0A0A] to-[#0A261D]" />
+                        <motion.div
+                            animate={{ x: ["-100%", "200%"] }}
+                            transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+                            className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.05)] to-transparent skew-x-[-30deg]"
+                        />
+
+                        <div className="relative z-10 flex justify-between items-start">
+                            <ShieldCheck className="text-[#D4AF37]" size={28} />
+                            <span className="text-[10px] font-sans tracking-[0.2em] text-[#D4AF37] uppercase bg-black/40 px-3 py-1 rounded-full border border-[#D4AF37]/30">Active Plan</span>
+                        </div>
+
+                        <div className="relative z-10 flex flex-col mt-4">
+                            <span className="text-gray-400 font-inter text-xs tracking-widest uppercase mb-1 drop-shadow-md">Accumulated Gold</span>
+                            <div className="flex items-baseline gap-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                                <h2 className="text-5xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-b from-[#FFF5D1] to-[#D4AF37]">
+                                    {totalGrams.toFixed(4)}
+                                </h2>
+                                <span className="text-[#D4AF37] font-bold text-lg tracking-widest">g</span>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-3 mb-6">
+                        <div className="relative z-10 flex justify-between items-end mt-4">
                             <div>
-                                <label className="text-xs font-bold font-inter text-gray-900 block text-center mb-2">Month</label>
+                                <p className="text-[#888] text-[10px] font-inter uppercase tracking-widest mb-0.5">Gold Rate Today</p>
+                                <p className="text-[#E0E0E0] font-sans font-medium">S$ <span className="text-[#D4AF37]">{currentGoldRate.toFixed(2)}</span> /g</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[#888] text-[10px] font-inter uppercase tracking-widest mb-0.5">Progress</p>
+                                <p className="text-[#D4AF37] font-serif font-bold">{monthsCompleted} / 12 Months</p>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Purchase Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="mt-8 bg-[#0B0B0B] border border-white/5 rounded-2xl p-5 shadow-2xl"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <Sparkles size={16} className="text-[#D4AF37]" />
+                            <h3 className="text-white font-serif tracking-wide text-lg">Acquire Next Instalment</h3>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-5">
+                            <div className="bg-[#111] border border-white/10 rounded-xl p-3">
+                                <label className="text-[10px] uppercase tracking-widest text-[#888] block mb-1">Month Selected</label>
                                 <select
-                                    className="w-full text-center text-sm font-inter text-gray-600 bg-white border border-gray-200 rounded-lg py-2.5 outline-none focus:border-[#C9A84C] px-1 disabled:opacity-50 disabled:bg-gray-50"
+                                    className="w-full bg-transparent text-[#D4AF37] font-bold outline-none font-serif appearance-none"
                                     value={buyMonth}
                                     onChange={(e) => setBuyMonth(e.target.value)}
                                 >
-                                    <option value="" disabled>Select</option>
+                                    <option value="" disabled className="bg-black">Select Month</option>
                                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => {
                                         const nextExpectedMonth = (schemeData?.payments?.length || 0) + 1;
                                         const isPaidOrFuture = m !== nextExpectedMonth;
                                         return (
-                                            <option key={m} value={m} disabled={isPaidOrFuture}>
+                                            <option key={m} value={m} disabled={isPaidOrFuture} className="bg-black">
                                                 Month {m} {m < nextExpectedMonth ? '(Paid)' : ''}
                                             </option>
                                         );
                                     })}
                                 </select>
                             </div>
-                            <div>
-                                <label className="text-xs font-bold font-inter text-gray-900 block text-center mb-2">Gram</label>
-                                <div className="w-full text-center text-sm font-inter text-gray-500 bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-1 cursor-not-allowed select-none">
-                                    {(schemeData.amount / currentGoldRate).toFixed(4)}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold font-inter text-gray-900 block text-center mb-2">Price</label>
-                                <div className="w-full text-center text-sm font-inter text-gray-500 bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-1 cursor-not-allowed select-none">
-                                    {schemeData.amount}
-                                </div>
+                            <div className="bg-[#111] border border-white/10 rounded-xl p-3 flex flex-col justify-center items-end">
+                                <label className="text-[10px] uppercase tracking-widest text-[#888] block mb-1">Cost</label>
+                                <span className="text-white font-bold font-sans">S$ {schemeData.amount}</span>
                             </div>
                         </div>
 
-                        <button
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={handleBuy}
                             disabled={isBuying}
-                            className={`w-full py-4 text-white rounded-xl font-bold font-inter tracking-wide transition-all shadow-md ${isBuying ? 'bg-gray-400 cursor-wait' : 'bg-[#1a1a1a] shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:bg-black active:scale-[0.98]'}`}
+                            className={`w-full relative overflow-hidden rounded-xl p-[1px] group ${isBuying ? 'opacity-50 pointer-events-none' : ''}`}
                         >
-                            {isBuying ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Processing...
-                                </span>
-                            ) : (
-                                "Buy"
+                            <span className="absolute inset-0 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] rounded-xl opacity-50 group-hover:opacity-100 transition-opacity" />
+                            <div className="relative bg-[#0A0A0A] w-full py-4 rounded-xl flex items-center justify-center space-x-2 transition-all">
+                                {isBuying ? (
+                                    <span className="text-[#D4AF37] font-inter text-sm tracking-widest uppercase">Processing</span>
+                                ) : (
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E8D08B] to-[#C9A84C] font-bold text-sm tracking-widest uppercase">Process S$ {schemeData.amount}</span>
+                                )}
+                            </div>
+                        </motion.button>
+                    </motion.div>
+
+                    {/* History Section */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="mt-8 mb-4"
+                    >
+                        <h3 className="text-white/80 font-serif tracking-widest text-sm uppercase mb-3 ml-2">Transaction History</h3>
+                        <div className="space-y-3">
+                            {schemeData.payments?.slice().reverse().map((p: any, i: number) => {
+                                const rawDate = new Date(p.createdAt || p.paymentDate);
+                                return (
+                                    <motion.div
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5 + Math.min(i * 0.1, 0.5) }}
+                                        key={p.id || i}
+                                        className="bg-[#0B0B0B] border border-white/5 rounded-xl p-4 flex justify-between items-center"
+                                    >
+                                        <div>
+                                            <p className="text-white font-bold font-serif mb-1">Month {p.monthIndex}</p>
+                                            <p className="text-[#666] text-xs font-sans">{rawDate.toLocaleDateString()}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[#D4AF37] font-bold">{Number(p.gramAccumulated).toFixed(4)} g</p>
+                                            <p className="text-[#888] text-[10px] mt-0.5">@ S$ {Number(p.goldRate).toFixed(2)}/g</p>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+
+                            {(!schemeData.payments || schemeData.payments.length === 0) && (
+                                <div className="text-center py-8 text-[#555] font-light text-sm italic">
+                                    No transactions yet. Secure your first gold portion today.
+                                </div>
                             )}
-                        </button>
-                    </div>
-
-                    <div className="border-t border-gray-200 w-full mb-8 absolute left-0"></div>
-                    <div className="pt-8"></div>
-
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-xl font-bold font-sans px-1">Vault</h1>
-                        <h2 className="text-2xl font-serif text-[#C9A84C] italic drop-shadow-sm font-light px-1">
-                            Easy 12 Gold Scheme
-                        </h2>
-                    </div>
-
-                    {/* Summary Card */}
-                    <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden border border-gray-100 p-5 flex justify-between items-center mb-8">
-                        <div>
-                            <h3 className="text-2xl font-black text-primary-gold mb-1">{totalGrams.toFixed(4)} Grams</h3>
-                            <p className="text-gray-600 text-sm font-medium">Total Gold Savings</p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-gray-900 font-bold text-sm mb-1">Months Completed</p>
-                            <h3 className="text-2xl font-black text-primary-gold">{monthsCompleted}</h3>
-                        </div>
-                    </div>
-
-                    {/* Table */}
-                    <h3 className="text-xl font-bold mb-4 px-1">History</h3>
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <table className="w-full text-sm font-inter">
-                            <thead className="bg-[#FAFAFA] border-b border-gray-200">
-                                <tr>
-                                    <th className="py-4 font-bold text-gray-900 px-2 text-center border-r border-gray-100">Date</th>
-                                    <th className="py-4 font-bold text-gray-900 px-2 text-center border-r border-gray-100 min-w-[3rem]">Month</th>
-                                    <th className="py-4 font-bold text-gray-900 px-2 text-center border-r border-gray-100">Gold Rate</th>
-                                    <th className="py-4 font-bold text-gray-900 px-2 text-center border-r border-gray-100">Gram</th>
-                                    <th className="py-4 font-bold text-gray-900 px-2 text-center">Amount paid</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {schemeData.payments?.map((p: any, i: number) => {
-                                    const rawDate = new Date(p.createdAt || p.paymentDate);
-                                    const ddmmyy = `${rawDate.getDate().toString().padStart(2, '0')}/${(rawDate.getMonth() + 1).toString().padStart(2, '0')}/${String(rawDate.getFullYear()).slice(-2)}`;
-                                    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                                    const monthLabel = p.monthIndex ? `Month ${p.monthIndex}` : monthNames[rawDate.getMonth()];
-                                    return (
-                                        <tr key={p.id || i} className="border-b border-gray-100 last:border-0 text-gray-600 bg-white">
-                                            <td className="py-4 px-2 text-center border-r border-gray-100 text-xs font-semibold whitespace-nowrap"><span className="bg-[#b9d3db] text-black px-1 py-0.5 bg-opacity-70">{ddmmyy}</span></td>
-                                            <td className="py-4 px-2 text-center border-r border-gray-100 text-xs font-medium">{monthLabel}</td>
-                                            <td className="py-4 px-2 text-center border-r border-gray-100 text-xs font-medium">${Number(p.goldRate).toFixed(2)}</td>
-                                            <td className="py-4 px-2 text-center border-r border-gray-100 text-xs font-medium">{Number(p.gramAccumulated).toFixed(4)}</td>
-                                            <td className="py-4 px-2 text-center text-xs font-medium">${p.amountPaid}</td>
-                                        </tr>
-                                    )
-                                })}
-                                {Array(Math.max(0, 5 - (schemeData.payments?.length || 0))).fill(0).map((_, i) => (
-                                    <tr key={'empty' + i} className="border-b border-gray-100 last:border-0 h-12">
-                                        <td className="border-r border-gray-100"></td>
-                                        <td className="border-r border-gray-100"></td>
-                                        <td className="border-r border-gray-100"></td>
-                                        <td className="border-r border-gray-100"></td>
-                                        <td></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Confirmation Buy Modal */}
-                {confirmBuyModal && (
-                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
-                            <button onClick={() => setConfirmBuyModal(false)} className="absolute right-4 top-4 text-gray-400 hover:text-gray-900">
-                                ✕
-                            </button>
-                            <h2 className="text-xl font-bold font-serif text-gray-900 mb-2 mt-2">Confirm Payment</h2>
-                            <p className="text-gray-600 font-inter text-sm mb-6">
-                                Are you sure you want to process the payment of <strong>S$ {schemeData.amount}</strong> for <strong>Month {buyMonth}</strong>?
-                            </p>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setConfirmBuyModal(false)}
-                                    className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl active:bg-gray-200 transition-colors"
-                                >
-                                    No, Cancel
-                                </button>
-                                <button
-                                    onClick={processBuy}
-                                    className="flex-1 py-3 bg-[#C9A84C] text-white font-bold rounded-xl active:bg-[#B39340] transition-colors shadow-md"
-                                >
-                                    Yes, Confirm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Buy Confirmation Modal */}
+                <AnimatePresence>
+                    {confirmBuyModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.2)] rounded-2xl w-full max-w-sm p-6 shadow-2xl relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+
+                                <h2 className="text-2xl font-serif text-[#D4AF37] mb-3 text-center">Confirm Authorization</h2>
+                                <p className="text-[#AAA] font-inter text-sm mb-8 text-center leading-relaxed">
+                                    Secure <strong className="text-white font-bold">{(schemeData.amount / currentGoldRate).toFixed(4)}g</strong> of pure 22K gold for <strong className="text-white">Month {buyMonth}</strong> at S$ {schemeData.amount}?
+                                </p>
+
+                                <div className="flex flex-col gap-3">
+                                    <button
+                                        onClick={processBuy}
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-sm rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-[0.98] transition-transform"
+                                    >
+                                        Authorize Purchase
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmBuyModal(false)}
+                                        className="w-full py-3 text-[#666] font-bold text-sm tracking-wider uppercase hover:text-white transition-colors"
+                                    >
+                                        Revoke
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         );
     }
 
+    // --- NO SCHEME / APPLY ---
     return (
-        <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#FFFDF0] to-white pb-32 font-sans relative">
-            {/* Top Bar */}
-            <div className="flex items-center space-x-4 p-6 relative">
-                <Link to="/home" className="text-gray-900 hover:scale-110 transition-transform">
+        <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans relative overflow-hidden page-transition">
+            <div className="absolute inset-0 z-0">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 60, ease: "linear" }}
+                    className="absolute -top-[20%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[100px] bg-gradient-radial from-[#1A1A00] to-transparent opacity-50"
+                />
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative w-full flex items-center p-6 z-10"
+            >
+                <Link to="/home" className="text-[#D4AF37] hover:scale-110 transition-transform">
                     <ArrowLeft size={24} />
                 </Link>
-                <h1 className="text-xl font-bold font-serif">Gold Saving Scheme</h1>
-            </div>
+                <div className="ml-auto">
+                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                </div>
+            </motion.div>
 
-            <div className="px-5 mt-2 flex-grow">
-                {/* Main Card */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-yellow-100">
-                    <div className="p-8 pb-10">
-                        {/* Title */}
-                        <h2 className="text-4xl font-serif text-primary-gold italic mb-6 text-center shadow-sm drop-shadow-sm font-light">
-                            Easy 12 Gold Scheme
+            <div className="px-5 flex-grow flex flex-col items-center justify-center z-10">
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="w-full max-w-sm rounded-2xl relative p-[1px] overflow-hidden"
+                >
+                    <span className="absolute inset-0 bg-gradient-to-br from-[#D4AF37] via-transparent to-[#D4AF37] rounded-2xl opacity-30" />
+
+                    <div className="bg-[#0B0B0B] p-8 rounded-2xl relative z-10 flex flex-col items-center shadow-2xl">
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#B6942C] rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+                            <Sparkles className="text-black" size={28} />
+                        </div>
+
+                        <h2 className="text-3xl font-serif text-[#D4AF37] italic mb-3 text-center">
+                            Elite Gold Scheme
                         </h2>
 
-                        <div className="mb-6 border-b border-gray-100 pb-4">
-                            <h3 className="text-2xl font-bold text-primary-gold mb-1 tracking-tight">Buy 22K Gold</h3>
-                            <p className="text-gray-800 font-medium">12 Month Saving Scheme</p>
-                        </div>
+                        <p className="text-center text-[#888] text-sm leading-relaxed mb-8">
+                            Join the most exclusive 12-month wealth accumulation plan. Secure pure 22K gold systematically with no making charges at maturity.
+                        </p>
 
-                        <div className="space-y-4">
-                            <h4 className="font-bold text-gray-900 text-sm">DMY JEWELLERS EASY Gold Twelve Scheme</h4>
-
-                            <p className="text-gray-700 text-[15px] leading-relaxed">
-                                This is a special savings scheme which facilitates the purchase of gold jewellery at an affordable cost. Under this plan you are required to make 12 monthly installments in advance payments. Post the 12th month, you can utilise the accumulated weight to purchase the jewellery of your choice without making charges within the weight.
-                            </p>
-
-                            <p className="text-gray-700 text-[15px] leading-relaxed">
-                                <strong className="text-gray-900">Note:</strong> You cannot purchase special items like diamond, platinum, ruby, emerald, uncut diamonds, pooja items, ethnic or vintage jewelry, Gold-bullion bars & coins, silver or silver articles. And also, scheme members not eligible to purchase under all special sales promotion.
-                            </p>
-                        </div>
-
-                        <div className="mt-10">
-                            <button onClick={handleApplyNow} className="block w-full text-center bg-[#1a1a1a] text-white py-4 rounded-xl font-bold hover:bg-black transition-colors shadow-lg shadow-black/20">
-                                Apply Now
-                            </button>
-                        </div>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleApplyNow}
+                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                        >
+                            Begin Journey
+                        </motion.button>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
-            {/* T&C Modal */}
-            {showTerms && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white rounded-2xl w-full max-w-sm max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
-                        <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-                            <h2 className="text-lg font-bold text-gray-900">Terms & Conditions</h2>
-                            <button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-black transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="p-5 overflow-y-auto font-inter text-sm text-gray-600 space-y-4 max-h-[50vh]">
-                            <p className="font-semibold text-black">Terms and Conditions</p>
-                            <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus. Members who fail to do so will not be eligible for the 13th month bonus.</p>
-                            <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid. i.e., When a member, who joins the scheme on 1st January 2024, fails to make their monthly instalment for any one month, their scheme will lapse by 1 month causing the scheme period to end on 1st February 2025. Such members can redeem jewellery worth their savings and 13th month bonus after 1st March 2025 or 30 days after their last timely payment.</p>
-                            <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period. Members who wish to redeem their jewellery at an earlier date will not be eligible for the 13th month bonus.</p>
-                            <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
-                            <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
-                            <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                            <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption. Members who wish to redeem jewellery in conjunction with any special offers or promotions will have to forgo their 13th month bonus.</p>
-                            <p>8) Workmanship and other relevant charges will be levied additionally, according to the type of jewellery purchased.</p>
-                            <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                            <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                            <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID (NRIC, Driving Licence) for verification purpose during redemption.</p>
-                            <p>12) DMY Jewellery Pte Ltd gives full guarantee to members for all funds deposited in the Gold Saving Scheme.</p>
-                            <p>13) DMY Jewellery Pte Ltd may, at its sole discretion, with or without prior notice at any time, amend or revise the terms and conditions which will supersede the previous terms and conditions. All members hereby accept the terms and conditions as amended from time to time.</p>
-                            <p>14) Please visit dmyjewellery.com to view updated term and conditions.</p>
-                            <p>15) Any instalment payments made via Debit Cards or Credit Cards will incur 4% administrative charges.</p>
-                            <p>16) ATM transfer not accepted.</p>
-                        </div>
-                        <div className="p-5 border-t border-gray-100 bg-gray-50">
-                            <label className="flex items-center gap-2 cursor-pointer mb-4">
-                                <input type="checkbox" checked={agreeChecked} onChange={(e) => setAgreeChecked(e.target.checked)} className="w-4 h-4 rounded text-black border-gray-300 focus:ring-black accent-black" />
-                                <span className="font-medium text-gray-800 text-sm">I agree to the Terms & Conditions</span>
-                            </label>
-                            <div className="flex gap-3">
-                                <button onClick={() => setShowTerms(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-bold bg-white focus:outline-none">
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => { if (agreeChecked) navigate('/scheme/apply') }}
-                                    disabled={!agreeChecked}
-                                    className="flex-1 py-3 rounded-xl bg-black text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-colors">
-                                    Continue
+            <AnimatePresence>
+                {showTerms && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+                        >
+                            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#111]">
+                                <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">The Agreement</h2>
+                                <button onClick={() => setShowTerms(false)} className="text-gray-500 hover:text-white transition-colors">
+                                    <X size={20} />
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+
+                            <div className="p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
+                                <p>1) Members must complete all monthly payments promptly for 12 months as scheduled...</p>
+                                <p>2) Members who fail to make a payment in a given month will have their scheme period extended...</p>
+                                <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds...</p>
+                                <p className="italic text-[#777]">Note: Full extensive terms apply. Visit dmyjewellery.com for details.</p>
+                            </div>
+
+                            <div className="p-5 border-t border-white/10 bg-[#0A0A0A]">
+                                <label className="flex items-center gap-3 cursor-pointer mb-5">
+                                    <input
+                                        type="checkbox"
+                                        checked={agreeChecked}
+                                        onChange={(e) => setAgreeChecked(e.target.checked)}
+                                        className="w-4 h-4 rounded border-gray-600 bg-black checked:bg-[#D4AF37] focus:ring-0 accent-[#D4AF37]"
+                                    />
+                                    <span className="font-medium text-[#BBB] text-xs uppercase tracking-wider">I Accept the terms</span>
+                                </label>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setShowTerms(false)}
+                                        className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl border border-white/10 text-[#888] font-bold hover:bg-white/5 transition-colors"
+                                    >
+                                        Decline
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            playGoldSound();
+                                            if (agreeChecked) navigate('/scheme/apply');
+                                        }}
+                                        disabled={!agreeChecked}
+                                        className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl bg-[#D4AF37] text-black font-bold disabled:opacity-30 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:shadow-none"
+                                    >
+                                        Proceed
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

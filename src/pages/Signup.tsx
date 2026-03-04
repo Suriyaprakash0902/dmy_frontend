@@ -1,113 +1,85 @@
 import { useState } from 'react';
-import { EyeIcon, EyeOffIcon, ChevronDownIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { EyeIcon, EyeOffIcon, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import httpService from '../services/httpService';
 import toast from 'react-hot-toast';
+import { playGoldSound } from '../utils/sounds';
 
 export default function Signup() {
     const navigate = useNavigate();
     const [form, setForm] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        dob: '',
-        gender: '',
-        password: '',
-        confirmPassword: '',
-        agreeTerms: false
+        name: '', email: '', phone: '', dob: '', gender: '', password: '', confirmPassword: '', agreeTerms: false
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    // Email OTP states
     const [otpSent, setOtpSent] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
     const [otp, setOtp] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const update = (field: string, value: string | boolean) => {
-        setForm((prev) => ({
-            ...prev,
-            [field]: value
-        }));
-        if (errors[field])
-            setErrors((prev) => ({
-                ...prev,
-                [field]: ''
-            }));
+        setForm(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
     };
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
-        if (!form.name) newErrors.name = 'Name is required';
-        if (!form.email) newErrors.email = 'Email is required'; else
-            if (!/\S+@\S+\.\S+/.test(form.email))
-                newErrors.email = 'Enter a valid email';
-        if (!form.phone) newErrors.phone = 'Phone number is required';
-        if (!form.dob) newErrors.dob = 'Date of birth is required';
-        if (!form.gender) newErrors.gender = 'Please select gender';
-        if (!form.password) newErrors.password = 'Password is required'; else
-            if (form.password.length < 8)
-                newErrors.password = 'Minimum 8 characters required';
-        if (!form.confirmPassword)
-            newErrors.confirmPassword = 'Please confirm your password'; else
-            if (form.password !== form.confirmPassword)
-                newErrors.confirmPassword = 'Passwords must match';
-        if (!otpVerified)
-            newErrors.email = 'Please verify your email with OTP';
-        if (!form.agreeTerms)
-            newErrors.agreeTerms = 'You must agree to terms & conditions';
+        if (!form.name) newErrors.name = 'Data required';
+        if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Invalid email structure';
+        if (!form.phone) newErrors.phone = 'Data required';
+        if (!form.dob) newErrors.dob = 'Data required';
+        if (!form.gender) newErrors.gender = 'Selection required';
+        if (!form.password || form.password.length < 8) newErrors.password = 'Min 8 characters';
+        if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Keys mismatch';
+        if (!otpVerified) newErrors.email = 'Verification required';
+        if (!form.agreeTerms) newErrors.agreeTerms = 'Agreement mandatory';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSendOtp = async () => {
+        playGoldSound();
         if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) {
-            setErrors({ ...errors, email: 'Enter a valid email first' });
+            setErrors({ ...errors, email: 'Valid email required' });
             return;
         }
         setIsSubmitting(true);
         try {
             await httpService.post('/api/auth/register/send-otp', { email: form.email });
             setOtpSent(true);
-            toast.success(`An OTP has been sent to ${form.email}. Please check your inbox.`);
+            toast.success(`Verification code dispatched to ${form.email}`);
         } catch (error: any) {
-            console.error(error);
-            setErrors({ ...errors, email: error.message || 'Failed to send OTP' });
+            setErrors({ ...errors, email: error.message || 'Failed to dispatch code' });
         }
         setIsSubmitting(false);
     };
 
     const handleVerifyOtp = async () => {
-        if (otp.length !== 4) {
-            setErrors((prev) => ({ ...prev, email: 'Enter valid 4-digit OTP' }));
-            return;
-        }
+        playGoldSound();
+        if (otp.length !== 4) return;
         setIsSubmitting(true);
         try {
             await httpService.post('/api/auth/register/verify-otp', { email: form.email, otp });
             setOtpVerified(true);
-            setErrors((prev) => ({ ...prev, email: '' }));
-            toast.success('Email verified successfully!');
+            toast.success('Identity verified.', { style: { background: '#0B0B0B', color: '#D4AF37' } });
         } catch (error: any) {
-            console.error(error);
-            setErrors((prev) => ({ ...prev, email: error.message || 'Invalid OTP' }));
+            setErrors({ ...errors, email: error.message || 'Invalid code' });
         }
         setIsSubmitting(false);
     };
 
     const handleSignup = async () => {
+        playGoldSound();
         if (validate()) {
             setIsSubmitting(true);
             try {
                 const data: any = await httpService.post('/api/auth/register', form);
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                }
+                if (data.token) localStorage.setItem('token', data.token);
+                toast.success('Vault Access Granted');
                 navigate('/home');
             } catch (error: any) {
-                console.error(error);
                 setErrors({ ...errors, email: error.message || 'Verification failed' });
             }
             setIsSubmitting(false);
@@ -115,321 +87,193 @@ export default function Signup() {
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-white page-transition">
-            {/* Black curved header */}
-            <div
-                className="relative w-full flex flex-col items-center pt-10 pb-10"
-                style={{
-                    backgroundColor: '#0A0A0A',
-                    borderRadius: '0 0 50% 50% / 0 0 40px 40px'
-                }}>
-
-                <div className="text-center">
-                    <div
-                        className="font-playfair font-black leading-none"
-                        style={{
-                            fontSize: '42px',
-                            color: '#C9A84C',
-                            letterSpacing: '0.08em'
-                        }}>
-                        DMY
-                    </div>
-                    <div
-                        className="font-playfair font-bold tracking-[0.35em] text-white"
-                        style={{
-                            fontSize: '12px'
-                        }}>
-                        JEWELLERS
-                    </div>
-                    <div
-                        className="font-inter font-light tracking-[0.3em] mt-0.5"
-                        style={{
-                            fontSize: '9px',
-                            color: 'rgba(255,255,255,0.6)'
-                        }}>
-                        SINGAPORE
-                    </div>
-                </div>
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-y-auto page-transition custom-scrollbar">
+            {/* Background Animations */}
+            <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 90, ease: "linear" }}
+                    className="absolute top-[10%] right-[10%] w-[600px] h-[600px] rounded-full blur-[120px] bg-gradient-radial from-[#D4AF37] to-transparent"
+                />
             </div>
 
-            {/* Body */}
-            <div className="px-6 pt-6 pb-8">
-                <div className="mb-6">
-                    <h1
-                        className="font-playfair font-black text-4xl leading-tight"
-                        style={{
-                            color: '#0A0A0A'
-                        }}>
-                        Welcome
-                    </h1>
-                    <p className="font-inter text-gray-500 text-base mt-1">
-                        Sign up for your account
-                    </p>
+            <div className="relative z-10 px-6 py-10 pb-20">
+
+                {/* Header Back Button & Logo */}
+                <div className="flex justify-between items-center mb-10">
+                    <Link to="/login" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
                 </div>
 
-                {/* Form */}
-                <div className="space-y-4">
-                    {/* Name */}
-                    <div>
-                        <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                            Name
-                        </label>
-                        <input
-                            type="text"
-                            value={form.name}
-                            onChange={(e) => update('name', e.target.value)}
-                            placeholder="eg: Robert Joe"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                            style={{
-                                backgroundColor: '#FAFAFA'
-                            }} />
-
-                        {errors.name &&
-                            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-                        }
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] tracking-wide mb-2">
+                            Initialize Account
+                        </h1>
+                        <p className="text-[#888] text-xs tracking-widest uppercase font-light">Create your personal vault</p>
                     </div>
 
-                    {/* Email */}
-                    <div>
-                        <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                            Email ID
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="email"
-                                value={form.email}
-                                onChange={(e) => {
-                                    update('email', e.target.value);
-                                    setOtpSent(false);
-                                    setOtpVerified(false);
-                                }}
-                                disabled={otpVerified}
-                                placeholder="eg: robertjoe3@gmail.com"
-                                className={`w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C] ${otpVerified ? 'bg-gray-100 text-gray-500' : 'bg-[#FAFAFA]'}`}
-                            />
-                            {!otpVerified && (
-                                <button
-                                    type="button"
-                                    onClick={handleSendOtp}
-                                    disabled={isSubmitting || !form.email}
-                                    className="px-4 py-3 bg-[#0A0A0A] text-white text-sm font-inter font-medium rounded-xl whitespace-nowrap active:scale-[0.98] disabled:opacity-50"
-                                >
-                                    {otpSent ? 'Resend' : 'Send OTP'}
-                                </button>
-                            )}
-                            {otpVerified && (
-                                <div className="px-4 py-3 bg-green-50 text-green-600 border border-green-200 text-sm font-inter font-medium rounded-xl whitespace-nowrap flex items-center">
-                                    ✓ Verified
-                                </div>
-                            )}
-                        </div>
-                        {errors.email &&
-                            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                        }
-                    </div>
+                    <div className="bg-[#0B0B0B] border border-white/5 shadow-2xl rounded-3xl p-6 space-y-6 relative overflow-hidden">
+                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.3)] to-transparent" />
 
-                    {/* OTP Input */}
-                    {otpSent && !otpVerified && (
+                        {/* Name */}
                         <div>
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                Enter Email OTP
-                            </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
-                                    placeholder="Enter OTP (4 digits)"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 bg-[#FAFAFA] focus:outline-none focus:ring-1 focus:ring-[#C9A84C]"
-                                />
-                                <button
-                                    type="button"
-                                    disabled={isSubmitting}
-                                    onClick={handleVerifyOtp}
-                                    className="px-4 py-3 bg-[#C9A84C] text-white text-sm font-inter font-medium rounded-xl whitespace-nowrap active:scale-[0.98] disabled:opacity-70"
-                                >
-                                    Confirm
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Phone */}
-                    <div>
-                        <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                            Phone Number
-                        </label>
-                        <div
-                            className="flex items-center rounded-xl border border-gray-200 overflow-hidden focus-within:ring-1 focus-within:ring-[#C9A84C] focus-within:border-[#C9A84C]"
-                            style={{
-                                backgroundColor: '#FAFAFA'
-                            }}>
-
-                            <div className="flex items-center gap-1 px-3 py-3 border-r border-gray-200 bg-gray-50">
-                                <span className="font-inter text-sm text-gray-700 font-medium">
-                                    +65
-                                </span>
-                                <ChevronDownIcon size={14} className="text-gray-400" />
-                            </div>
-                            <input
-                                type="tel"
-                                value={form.phone}
-                                onChange={(e) => update('phone', e.target.value)}
-                                placeholder="12345 67890"
-                                className="flex-1 px-3 py-3 font-inter text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none" />
-
-                        </div>
-                        {errors.phone &&
-                            <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                        }
-                    </div>
-
-                    {/* DOB + Gender row */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                DOB
-                            </label>
+                            <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Full Name</label>
                             <input
                                 type="text"
-                                value={form.dob}
-                                onChange={(e) => update('dob', e.target.value)}
-                                placeholder="DD/MM/YY"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                style={{
-                                    backgroundColor: '#FAFAFA'
-                                }} />
-
-                            {errors.dob &&
-                                <p className="text-red-500 text-xs mt-1">{errors.dob}</p>
-                            }
+                                value={form.name}
+                                onChange={(e) => update('name', e.target.value)}
+                                placeholder="Legal Name"
+                                className={`w-full bg-[#151515] border ${errors.name ? 'border-red-900' : 'border-white/5'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wide`}
+                            />
                         </div>
+
+                        {/* Email */}
                         <div>
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                Gender
-                            </label>
-                            <div className="relative">
+                            <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Email Address</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="email"
+                                    value={form.email}
+                                    onChange={(e) => { update('email', e.target.value); setOtpSent(false); setOtpVerified(false); }}
+                                    disabled={otpVerified}
+                                    placeholder="client@vault.com"
+                                    className={`flex-1 bg-[#151515] border ${errors.email ? 'border-red-900' : 'border-white/5'} disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm`}
+                                />
+                                {!otpVerified && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSendOtp}
+                                        disabled={isSubmitting || !form.email}
+                                        className="px-4 py-3 bg-[#111] border border-white/5 text-[#D4AF37] text-[10px] tracking-widest uppercase rounded-xl transition-all hover:bg-[#D4AF37] hover:text-black font-bold whitespace-nowrap"
+                                    >
+                                        {otpSent ? 'Resend' : 'Send Code'}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* OTP Input */}
+                        {otpSent && !otpVerified && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="pt-2">
+                                <label className="text-[10px] tracking-widest uppercase text-[#D4AF37] mb-2 block shadow-sm">Secure Code</label>
+                                <div className="flex flex-col gap-3">
+                                    <input
+                                        type="text"
+                                        maxLength={4}
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                        placeholder="••••"
+                                        className="w-full bg-[#151515] border border-[#D4AF37]/50 text-[#D4AF37] tracking-[1em] text-center rounded-xl px-4 py-4 focus:outline-none focus:border-[#D4AF37] font-sans text-xl"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleVerifyOtp}
+                                        disabled={isSubmitting}
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-transform active:scale-[0.98]"
+                                    >
+                                        Verify Code
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* Phone */}
+                        <div>
+                            <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Phone Number</label>
+                            <div className="flex bg-[#151515] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#D4AF37] transition-colors">
+                                <span className="flex items-center justify-center px-3 bg-[#111] border-r border-white/5 text-[#D4AF37] font-bold text-sm">
+                                    +65
+                                </span>
+                                <input
+                                    type="tel"
+                                    value={form.phone}
+                                    onChange={(e) => update('phone', e.target.value.replace(/\D/g, ''))}
+                                    placeholder="8765 4321"
+                                    className="w-full bg-transparent text-[#D4AF37] placeholder-[#444] px-4 py-3 focus:outline-none font-sans text-sm tracking-wider"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Birth Date</label>
+                                <input
+                                    type="date"
+                                    value={form.dob}
+                                    onChange={(e) => update('dob', e.target.value)}
+                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Identity</label>
                                 <select
                                     value={form.gender}
                                     onChange={(e) => update('gender', e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 appearance-none focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                    style={{
-                                        backgroundColor: '#FAFAFA'
-                                    }}>
-                                    <option value="">Select</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
+                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
+                                >
+                                    <option value="" className="bg-[#111]">Select</option>
+                                    <option value="male" className="bg-[#111]">Male</option>
+                                    <option value="female" className="bg-[#111]">Female</option>
                                 </select>
-                                <ChevronDownIcon
-                                    size={16}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-
                             </div>
-                            {errors.gender &&
-                                <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
-                            }
                         </div>
-                    </div>
 
-                    {/* Password */}
-                    <div>
-                        <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                            Password
-                        </label>
-                        <div className="relative">
+                        {/* Passwords */}
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Master Password</label>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={form.password}
+                                    onChange={(e) => update('password', e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans"
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 bottom-3.5 text-[#666] hover:text-[#D4AF37]">
+                                    {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Confirm Password</label>
+                                <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    value={form.confirmPassword}
+                                    onChange={(e) => update('confirmPassword', e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans"
+                                />
+                                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 bottom-3.5 text-[#666] hover:text-[#D4AF37]">
+                                    {showConfirmPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-2 flex items-start gap-3">
                             <input
-                                type={showPassword ? 'text' : 'password'}
-                                value={form.password}
-                                onChange={(e) => update('password', e.target.value)}
-                                placeholder="8 characters must be included"
-                                className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                style={{
-                                    backgroundColor: '#FAFAFA'
-                                }} />
-
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none">
-                                {showPassword ?
-                                    <EyeOffIcon size={18} /> :
-                                    <EyeIcon size={18} />
-                                }
-                            </button>
+                                type="checkbox"
+                                checked={form.agreeTerms}
+                                onChange={(e) => update('agreeTerms', e.target.checked)}
+                                className="mt-1 w-4 h-4 rounded border-gray-600 bg-black checked:bg-[#D4AF37] focus:ring-0 accent-[#D4AF37]"
+                            />
+                            <span className="text-[#888] text-[10px] uppercase tracking-wider leading-relaxed">
+                                I bind myself to the <button onClick={(e) => e.preventDefault()} className="text-[#D4AF37] underline font-bold">Terms of Vault</button>
+                            </span>
                         </div>
-                        {errors.password &&
-                            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                        }
+
+                        <motion.button
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleSignup}
+                            disabled={isSubmitting}
+                            className="w-full py-4 mt-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] disabled:opacity-50"
+                        >
+                            {isSubmitting ? 'Processing...' : 'Secure Account'}
+                        </motion.button>
+
                     </div>
-
-                    {/* Confirm Password */}
-                    <div>
-                        <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                            Confirm Password
-                        </label>
-                        <div className="relative">
-                            <input
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                value={form.confirmPassword}
-                                onChange={(e) => update('confirmPassword', e.target.value)}
-                                placeholder="both passwords must match"
-                                className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                style={{
-                                    backgroundColor: '#FAFAFA'
-                                }} />
-
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none">
-                                {showConfirmPassword ?
-                                    <EyeOffIcon size={18} /> :
-                                    <EyeIcon size={18} />
-                                }
-                            </button>
-                        </div>
-                        {errors.confirmPassword &&
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.confirmPassword}
-                            </p>
-                        }
-                    </div>
-
-                    {/* Create Account button */}
-                    <button
-                        onClick={handleSignup}
-                        disabled={isSubmitting}
-                        className="w-full py-4 rounded-xl font-inter font-semibold text-base text-white transition-all duration-200 active:scale-[0.98] mt-2 focus:outline-none disabled:opacity-70"
-                        style={{
-                            backgroundColor: '#0A0A0A'
-                        }}>
-                        {isSubmitting ? 'Processing...' : 'Create account'}
-                    </button>
-
-                    {/* Terms */}
-                    <div className="flex items-start gap-2">
-                        <input
-                            type="checkbox"
-                            checked={form.agreeTerms}
-                            onChange={(e) => update('agreeTerms', e.target.checked)}
-                            className="w-3.5 h-3.5 mt-0.5 rounded border-gray-300 flex-shrink-0"
-                            style={{
-                                accentColor: '#C9A84C'
-                            }} />
-
-                        <span className="font-inter text-xs text-gray-500">
-                            Agree{' '}
-                            <button className="font-semibold underline text-gray-700 focus:outline-none">
-                                terms & conditions
-                            </button>{' '}
-                            to continue
-                        </span>
-                    </div>
-                    {errors.agreeTerms &&
-                        <p className="text-red-500 text-xs">{errors.agreeTerms}</p>
-                    }
-                </div>
+                </motion.div>
             </div>
         </div>
     );

@@ -1,269 +1,293 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDownIcon, Mail, Phone } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from "lucide-react";
+import { motion } from 'framer-motion';
 import httpService from '../services/httpService';
 import toast from 'react-hot-toast';
+import { playGoldSound } from '../utils/sounds';
 
 export default function Login() {
     const navigate = useNavigate();
-    const [loginMethod, setLoginMethod] = useState<'whatsapp' | 'email'>('whatsapp');
-    const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
-    const [otp, setOtp] = useState('');
+    const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        emailOtp: '',
+        phone: '',
+        phoneOtp: ''
+    });
+
+    // UI states
+
     const [otpSent, setOtpSent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState<{
-        phone?: string;
-        email?: string;
-        otp?: string;
-    }>({});
 
-    const handleSendOtp = async () => {
-        if (loginMethod === 'whatsapp' && !phone) {
-            setErrors({ phone: 'Phone number is required' });
-            return;
-        }
-        if (loginMethod === 'email' && !email) {
-            setErrors({ email: 'Email is required' });
+    const updateFormData = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    // --- EMAIL LOGIN (Password + OTP Flow) ---
+    const handleEmailOtpLogin = async () => {
+        playGoldSound();
+        if (!formData.email) {
+            toast.error('Email is required');
             return;
         }
         setIsSubmitting(true);
         try {
-            if (loginMethod === 'whatsapp') {
-                await httpService.post('/api/auth/login/whatsapp-otp', { phone });
-                toast.success(`A WhatsApp OTP has been sent to ${phone}`);
-            } else {
-                await httpService.post('/api/auth/login/email-otp', { email });
-                toast.success(`An Email OTP has been sent to ${email}`);
-            }
-            setOtpSent(true);
-            setErrors({});
-        } catch (error: any) {
-            console.error(error);
-            setErrors({
-                ...(loginMethod === 'whatsapp' ? { phone: error.message || 'Failed to send OTP' } : { email: error.message || 'Failed to send OTP' })
+            await httpService.post('/api/auth/login/email-otp', {
+                email: formData.email
             });
+            setOtpSent(true);
+            toast.success('Verification code sent to your email.');
+        } catch (error: any) {
+            toast.error(error.message || 'Login failed, check credentials.');
         }
         setIsSubmitting(false);
     };
 
-    const handleLogin = async () => {
-        if (!otp) {
-            setErrors({ otp: 'OTP is required' });
+    const handleVerifyEmailOtp = async () => {
+        playGoldSound();
+        if (formData.emailOtp.length !== 4) {
+            toast.error('Enter valid 4-digit OTP');
             return;
         }
         setIsSubmitting(true);
         try {
-            let data: any;
-            if (loginMethod === 'whatsapp') {
-                data = await httpService.post('/api/auth/login/verify-otp', { phone, otp });
-            } else {
-                data = await httpService.post('/api/auth/login/verify-email-otp', { email, otp });
-            }
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-            }
+            const data: any = await httpService.post('/api/auth/login/verify-email-otp', {
+                email: formData.email,
+                otp: formData.emailOtp
+            });
+            localStorage.setItem('token', data.token);
+            toast.success('Access Granted.', { style: { background: '#0B0B0B', color: '#D4AF37' } });
             navigate('/home');
         } catch (error: any) {
-            console.error(error);
-            setErrors({ otp: error.message || 'Invalid OTP' });
+            toast.error(error.message || 'Verification Failed');
+        }
+        setIsSubmitting(false);
+    };
+
+    // --- PHONE WHATSAPP LOGIN FLOW ---
+    const handlePhoneLogin = async () => {
+        playGoldSound();
+        const phoneNo = '+65' + formData.phone;
+        if (!formData.phone || formData.phone.length < 8) {
+            toast.error('Enter a valid phone number');
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            await httpService.post('/api/auth/login/phone-otp', { phone: phoneNo });
+            setOtpSent(true);
+            toast.success('WhatsApp OTP Dispatched');
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to send WhatsApp OTP');
+        }
+        setIsSubmitting(false);
+    };
+
+    const handleVerifyPhoneOtp = async () => {
+        playGoldSound();
+        const phoneNo = '+65' + formData.phone;
+        if (formData.phoneOtp.length !== 4) {
+            toast.error('Enter valid 4-digit OTP');
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            const data: any = await httpService.post('/api/auth/login/verify-phone-otp', {
+                phone: phoneNo,
+                otp: formData.phoneOtp
+            });
+            localStorage.setItem('token', data.token);
+            toast.success('Access Granted.', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            navigate('/home');
+        } catch (error: any) {
+            toast.error(error.message || 'Verification Failed');
         }
         setIsSubmitting(false);
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-white page-transition flex flex-col">
-            {/* Black curved header */}
-            <div
-                className="relative w-full flex flex-col items-center pt-10 pb-10 flex-shrink-0"
-                style={{
-                    backgroundColor: '#0A0A0A',
-                    borderRadius: '0 0 50% 50% / 0 0 40px 40px',
-                    zIndex: 10
-                }}>
-
-                {/* DMY Logo */}
-                <div className="text-center">
-                    <img src="/logo-main.png" alt="DMY Jewellers" className="w-40 md:w-56 h-auto drop-shadow-xl" />
-                </div>
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-hidden page-transition">
+            {/* Background Animations */}
+            <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+                <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ repeat: Infinity, duration: 80, ease: "linear" }}
+                    className="absolute -top-[30%] -left-[10%] w-[800px] h-[800px] rounded-full blur-[150px] bg-gradient-radial from-[#D4AF37] to-transparent"
+                />
             </div>
 
-            {/* White body */}
-            <div className="px-6 pt-8 pb-6 flex-grow flex flex-col relative z-20">
-                {/* Heading */}
-                <div className="mb-6">
-                    <h1
-                        className="font-playfair font-black text-4xl text-black leading-tight gold-cursor"
-                        style={{
-                            color: '#0A0A0A'
-                        }}>
-                        Hello
-                    </h1>
-                    <p className="font-inter text-gray-500 text-base mt-1">
-                        Log in to your account
-                    </p>
+            <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-10">
+
+                {/* Header Back Button & Logo */}
+                <div className="absolute top-8 left-6 right-6 flex justify-between items-center">
+                    <Link to="/" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
                 </div>
 
-                {/* Form card */}
-                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-5 border border-gray-100 mb-8 z-20 bg-opacity-95 backdrop-blur-sm">
+                <motion.div
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="w-full max-w-sm mt-12"
+                >
+                    <div className="text-center mb-10">
+                        <h1 className="text-4xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] tracking-wide mb-2">
+                            Secure Login
+                        </h1>
+                        <p className="text-[#888] text-sm tracking-widest uppercase font-light">Access your wealth</p>
+                    </div>
 
-                    {/* Login Method Toggle */}
-                    {!otpSent && (
-                        <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
-                            <button
-                                onClick={() => {
-                                    setLoginMethod('whatsapp');
-                                    setErrors({});
-                                }}
-                                className={`flex-1 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${loginMethod === 'whatsapp' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <Phone size={16} /> WhatsApp
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setLoginMethod('email');
-                                    setErrors({});
-                                }}
-                                className={`flex-1 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${loginMethod === 'email' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <Mail size={16} /> Email
-                            </button>
+                    {/* Method Toggle */}
+                    <div className="flex bg-[#111] border border-white/5 rounded-full p-1 mb-8 shadow-inner">
+                        <button
+                            onClick={() => { playGoldSound(); setLoginMethod('email'); setOtpSent(false); }}
+                            className={`flex-1 py-3 text-xs tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'email'
+                                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                                : 'text-[#888] hover:text-[#D4AF37]'
+                                }`}
+                        >
+                            Email
+                        </button>
+                        <button
+                            onClick={() => { playGoldSound(); setLoginMethod('phone'); setOtpSent(false); }}
+                            className={`flex-1 py-3 text-xs tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'phone'
+                                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                                : 'text-[#888] hover:text-[#D4AF37]'
+                                }`}
+                        >
+                            WhatsApp
+                        </button>
+                    </div>
+
+                    <div className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.15)] rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+
+                        {/* Shimmer effect inside card */}
+                        <div className="absolute inset-0 opacity-10 pointer-events-none">
+                            <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white to-transparent rotate-45 animate-shimmer" />
                         </div>
-                    )}
 
-                    {/* Phone field */}
-                    {loginMethod === 'whatsapp' && (
-                        <div className="mb-4">
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                Phone Number
-                            </label>
-                            <div
-                                className="flex items-center rounded-xl border border-gray-200 overflow-hidden focus-within:ring-1 focus-within:ring-[#C9A84C] focus-within:border-[#C9A84C]"
-                                style={{
-                                    backgroundColor: '#FAFAFA'
-                                }}>
-
-                                <div className="flex items-center gap-1 px-3 py-3 border-r border-gray-200 bg-gray-50">
-                                    <span className="font-inter text-sm text-gray-700 font-medium">
-                                        +65
-                                    </span>
-                                    <ChevronDownIcon size={14} className="text-gray-400" />
+                        {loginMethod === 'email' && (
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                                <div>
+                                    <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">Registered Email</label>
+                                    <input
+                                        type="email"
+                                        placeholder="client@vault.com"
+                                        disabled={otpSent}
+                                        value={formData.email}
+                                        onChange={(e) => updateFormData('email', e.target.value)}
+                                        className="w-full bg-[#151515] border border-white/5 disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
+                                    />
                                 </div>
-                                <input
-                                    type="tel"
-                                    value={phone}
-                                    onChange={(e) => { setPhone(e.target.value); setOtpSent(false); }}
-                                    disabled={otpSent}
-                                    placeholder="8123 4567"
-                                    className="flex-1 w-full px-3 py-3 font-inter text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none disabled:text-gray-400" />
-                            </div>
 
-                            {errors.phone &&
-                                <p className="text-red-500 text-xs mt-1 font-inter">
-                                    {errors.phone}
-                                </p>
-                            }
-                        </div>
-                    )}
+                                {!otpSent && (
+                                    <>
+                                        <motion.button
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleEmailOtpLogin}
+                                            disabled={isSubmitting}
+                                            className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                        >
+                                            {isSubmitting ? 'Sending Request...' : 'Send Access Code'}
+                                        </motion.button>
+                                    </>
+                                )}
 
-                    {/* Email field */}
-                    {loginMethod === 'email' && (
-                        <div className="mb-4">
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => { setEmail(e.target.value); setOtpSent(false); }}
-                                disabled={otpSent}
-                                placeholder="name@example.com"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                style={{ backgroundColor: '#FAFAFA' }} />
+                                {otpSent && (
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                                        <div>
+                                            <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">Security OTP Sent</label>
+                                            <input
+                                                type="text"
+                                                placeholder="••••"
+                                                maxLength={4}
+                                                value={formData.emailOtp}
+                                                onChange={(e) => updateFormData('emailOtp', e.target.value.replace(/\D/g, ''))}
+                                                className="w-full bg-[#151515] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
+                                            />
+                                        </div>
+                                        <motion.button
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleVerifyEmailOtp}
+                                            disabled={isSubmitting}
+                                            className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
+                                        >
+                                            {isSubmitting ? 'Verifying...' : 'Unlock Vault'}
+                                        </motion.button>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
 
-                            {errors.email &&
-                                <p className="text-red-500 text-xs mt-1 font-inter">
-                                    {errors.email}
-                                </p>
-                            }
-                        </div>
-                    )}
+                        {loginMethod === 'phone' && (
+                            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                                <div>
+                                    <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">WhatsApp Number</label>
+                                    <div className="flex bg-[#151515] border border-white/5 rounded-xl disabled:opacity-50 overflow-hidden focus-within:border-[#D4AF37] transition-colors">
+                                        <span className="flex items-center justify-center px-4 bg-[#111] border-r border-white/5 text-[#D4AF37] font-bold text-sm">
+                                            +65
+                                        </span>
+                                        <input
+                                            type="tel"
+                                            placeholder="8765 4321"
+                                            disabled={otpSent}
+                                            value={formData.phone}
+                                            onChange={(e) => updateFormData('phone', e.target.value.replace(/\D/g, ''))}
+                                            className="w-full bg-transparent text-[#D4AF37] placeholder-[#444] px-4 py-3.5 focus:outline-none font-sans text-sm tracking-wider"
+                                        />
+                                    </div>
+                                </div>
 
-                    {/* OTP */}
-                    {otpSent && (
-                        <div className="mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <label className="font-inter text-sm font-medium text-gray-700 mb-1.5 block">
-                                {loginMethod === 'whatsapp' ? 'WhatsApp OTP' : 'Email OTP'}
-                            </label>
-                            <input
-                                type="text"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                placeholder="Enter 4-digit OTP"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 font-inter text-sm text-gray-800 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[#C9A84C] focus:border-[#C9A84C]"
-                                style={{ backgroundColor: '#FAFAFA' }} />
-                            {errors.otp &&
-                                <p className="text-red-500 text-xs mt-1 font-inter">
-                                    {errors.otp}
-                                </p>
-                            }
+                                {!otpSent ? (
+                                    <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={handlePhoneLogin}
+                                        disabled={isSubmitting}
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                    >
+                                        {isSubmitting ? 'Connecting...' : 'Send WhatsApp Key'}
+                                    </motion.button>
+                                ) : (
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                                        <div>
+                                            <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">WhatsApp OTP</label>
+                                            <input
+                                                type="text"
+                                                placeholder="••••"
+                                                maxLength={4}
+                                                value={formData.phoneOtp}
+                                                onChange={(e) => updateFormData('phoneOtp', e.target.value.replace(/\D/g, ''))}
+                                                className="w-full bg-[#151515] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
+                                            />
+                                        </div>
+                                        <motion.button
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleVerifyPhoneOtp}
+                                            disabled={isSubmitting}
+                                            className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
+                                        >
+                                            {isSubmitting ? 'Verifying...' : 'Unlock Vault'}
+                                        </motion.button>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+                    </div>
 
-                            <div className="flex justify-end mt-2">
-                                <button
-                                    onClick={() => { setOtpSent(false); setOtp(''); }}
-                                    className="text-xs text-[#C9A84C] font-medium hover:underline focus:outline-none"
-                                >
-                                    Change {loginMethod === 'whatsapp' ? 'phone number' : 'email'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Login / Send OTP button */}
-                    {!otpSent ? (
-                        <button
-                            onClick={handleSendOtp}
-                            disabled={isSubmitting}
-                            className="w-full py-4 rounded-xl font-inter font-semibold text-base text-white transition-all duration-200 active:scale-[0.98] focus:outline-none disabled:opacity-70 mt-2"
-                            style={{ backgroundColor: '#0A0A0A' }}>
-                            {isSubmitting ? 'Sending...' : 'Send OTP'}
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleLogin}
-                            disabled={isSubmitting}
-                            className="w-full py-4 rounded-xl font-inter font-semibold text-base text-white transition-all duration-200 active:scale-[0.98] focus:outline-none disabled:opacity-70 mt-2"
-                            style={{ backgroundColor: '#C9A84C' }}>
-                            {isSubmitting ? 'Verifying...' : 'Log in'}
-                        </button>
-                    )}
-
-                    {/* Create account link */}
-                    <p className="text-center font-inter text-xs text-gray-500 mt-6 relative z-10">
-                        Don't have an account?{' '}
-                        <Link
-                            to="/signup"
-                            className="font-semibold underline focus:outline-none"
-                            style={{
-                                color: '#0A0A0A'
-                            }}>
-                            Create account
-                        </Link>
-                    </p>
-                </div>
-            </div>
-
-            {/* Bottom image - adjusted positioning to prevent overlapping the form */}
-            <div className="w-full absolute bottom-0 left-0 right-0 z-0 opacity-80" style={{ height: '35vh' }}>
-                <img
-                    src="/WhatsApp_Image_2026-02-28_at_4.48.43_PM_(6).jpeg"
-                    alt="Diamond ring"
-                    className="w-full h-full object-cover object-top"
-                    style={{
-                        filter: 'brightness(0.7)'
-                    }} />
-                {/* Gradient overlay to make form readable */}
-                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white"></div>
+                    <div className="mt-8 text-center bg-[#111]/50 py-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                        <span className="text-[#666] text-xs font-sans tracking-wide">
+                            New Applicant?{' '}
+                            <Link to="/signup" onClick={() => playGoldSound()} className="text-[#D4AF37] font-bold uppercase tracking-widest hover:text-[#FFF] transition-colors ml-1">
+                                Apply
+                            </Link>
+                        </span>
+                    </div>
+                </motion.div>
             </div>
         </div>
     );

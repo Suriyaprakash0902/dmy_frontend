@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, X } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
+import { playGoldSound } from "../utils/sounds";
 
 export default function SchemeRegistration() {
     const navigate = useNavigate();
@@ -33,14 +35,14 @@ export default function SchemeRegistration() {
     };
 
     const handleNricChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Since we only allow typing when focused, the input value should be the actual string.
         setNric(e.target.value.toUpperCase());
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        playGoldSound();
         if (!agreeTerm) {
-            toast.error("Please agree to the terms.");
+            toast.error("You must agree to the Vault Terms to proceed.");
             return;
         }
 
@@ -52,38 +54,62 @@ export default function SchemeRegistration() {
             };
 
             await httpService.post('/api/schemes/apply', payload);
-            toast.success("Scheme application submitted successfully!");
+            toast.success("Vault Contract Signed Successfully", { style: { background: '#0B0B0B', color: '#D4AF37' } });
             navigate('/scheme');
         } catch (err: any) {
             console.error(err);
-            toast.error(err.message || "Failed to apply");
+            toast.error(err.message || "Failed to finalize contract");
         }
         setIsSubmitting(false);
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50 pb-10">
-            {/* Top Bar */}
-            <div className="flex items-center space-x-4 p-6 relative bg-white shadow-sm z-10">
-                <Link to="/scheme" className="text-gray-900 hover:scale-110 transition-transform">
-                    <ArrowLeft size={24} />
-                </Link>
-                <h1 className="text-xl font-bold font-serif text-gray-900">Registration Form</h1>
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] pb-10 font-sans page-transition overflow-hidden">
+            {/* Background Animations */}
+            <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
+                <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ repeat: Infinity, duration: 90, ease: "linear" }}
+                    className="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] rounded-full blur-[100px] bg-gradient-radial from-[#D4AF37] to-transparent"
+                />
             </div>
 
-            <div className="px-5 mt-6 flex-grow">
-                {/* Form Card */}
-                <div className="card shadow-lg border border-gray-100 p-6 rounded-2xl bg-white">
-                    <h2 className="text-primary-gold text-lg font-bold text-center mb-6 border-b border-gray-100 pb-2">Apply for Gold Scheme</h2>
-                    <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Top Bar */}
+            <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="flex items-center space-x-4 p-6 relative z-10 border-b border-white/5 bg-[#0B0B0B]"
+            >
+                <Link to="/scheme" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
+                    <ArrowLeft size={24} />
+                </Link>
+                <h1 className="text-lg font-serif tracking-widest uppercase text-[#D4AF37]">Vault Registration</h1>
+            </motion.div>
+
+            <div className="px-5 mt-8 flex-grow relative z-10">
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                    className="bg-[#0B0B0B] border border-[rgba(212,175,55,0.15)] shadow-2xl p-6 rounded-3xl relative overflow-hidden"
+                >
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.3)] to-transparent" />
+
+                    <div className="mb-6 flex flex-col items-center">
+                        <ShieldCheck className="text-[#D4AF37] mb-3" size={32} />
+                        <h2 className="text-[#D4AF37] text-xl font-serif italic text-center drop-shadow-md">Contract Details</h2>
+                        <span className="text-[#666] text-[10px] uppercase tracking-widest mt-1">Official Registration</span>
+                    </div>
+
+                    <form className="space-y-5" onSubmit={handleSubmit}>
 
                         <div>
-                            <label className="block text-sm font-semibold mb-1 text-gray-800">Full Name (Capital Letters)</label>
-                            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. ROBERT JOE" className="input-field py-2.5 uppercase placeholder:normal-case font-medium w-full border border-gray-200 rounded-lg px-3 focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] outline-none" />
+                            <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Legal Name (As in ID)</label>
+                            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="ROBERT JOE" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wide uppercase transition-colors" />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold mb-1 text-gray-800">NRIC No</label>
+                            <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">NRIC No / Fin</label>
                             <div className="relative">
                                 <input
                                     type="text"
@@ -92,10 +118,10 @@ export default function SchemeRegistration() {
                                     onFocus={() => setIsNricFocused(true)}
                                     onBlur={() => setIsNricFocused(false)}
                                     required
-                                    placeholder="e.g. S1234567A"
-                                    className="input-field py-2.5 font-medium w-full border border-gray-200 rounded-lg px-3 pr-10 focus:border-[#C9A84C] focus:ring-1 focus:ring-[#C9A84C] outline-none"
+                                    placeholder="S1234567A"
+                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wide transition-colors pr-12 uppercase"
                                 />
-                                <button type="button" onClick={() => setShowNric(!showNric)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                <button type="button" onClick={() => setShowNric(!showNric)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#666] hover:text-[#D4AF37] transition-colors">
                                     {showNric ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
@@ -103,125 +129,146 @@ export default function SchemeRegistration() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Block No</label>
-                                <input type="text" value={blockNo} onChange={(e) => setBlockNo(e.target.value)} required placeholder="e.g. 104" className="input-field py-2.5 w-full border border-gray-200 rounded-lg px-3 font-medium text-sm focus:border-[#C9A84C] focus:ring-1 outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Block No</label>
+                                <input type="text" value={blockNo} onChange={(e) => setBlockNo(e.target.value)} required placeholder="104" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Unit / Floor No</label>
-                                <input type="text" value={floorNo} onChange={(e) => setFloorNo(e.target.value)} required placeholder="e.g. #10-123" className="input-field py-2.5 w-full border border-gray-200 rounded-lg px-3 font-medium text-sm focus:border-[#C9A84C] focus:ring-1 outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Unit / Floor</label>
+                                <input type="text" value={floorNo} onChange={(e) => setFloorNo(e.target.value)} required placeholder="#10-123" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold mb-1 text-gray-800">Street Name</label>
-                            <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} required placeholder="e.g. Orchard Road" className="input-field py-2.5 font-medium border border-gray-200 rounded-lg px-3 w-full focus:border-[#C9A84C] focus:ring-1 outline-none" />
+                            <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Street Address</label>
+                            <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} required placeholder="Orchard Road" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Country</label>
-                                <input type="text" value="Singapore" readOnly className="input-field py-2.5 w-full font-medium text-sm bg-gray-100 text-gray-600 border border-gray-200 rounded-lg px-3 outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Region</label>
+                                <input type="text" value="Singapore" readOnly className="w-full bg-[#111] border border-transparent text-[#666] rounded-xl px-4 py-3 font-sans text-sm outline-none cursor-not-allowed uppercase tracking-wider" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Postal Code</label>
-                                <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required placeholder="e.g. 123456" className="input-field py-2.5 w-full font-medium text-sm border border-gray-200 rounded-lg px-3 focus:border-[#C9A84C] focus:ring-1 outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Postal Code</label>
+                                <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ''))} required placeholder="123456" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-widest transition-colors" />
                             </div>
                         </div>
 
-                        <div className="flex space-x-2 w-full pt-1">
+                        <div className="flex space-x-3 w-full">
                             <div className="w-1/3">
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Code</label>
-                                <select className="input-field py-2.5 w-full text-center appearance-none font-medium border border-gray-200 rounded-lg outline-none bg-gray-50">
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Dial</label>
+                                <select className="w-full bg-[#111] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 font-sans text-sm outline-none appearance-none text-center cursor-not-allowed">
                                     <option>+65</option>
                                 </select>
                             </div>
                             <div className="w-2/3">
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Phone</label>
-                                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="12345 67890" className="input-field py-2.5 w-full font-medium border border-gray-200 rounded-lg px-3 focus:border-[#C9A84C] outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Mobile Number</label>
+                                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} required placeholder="8765 4321" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wider transition-colors" />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 pt-1">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">DOB</label>
-                                <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required className="input-field py-2.5 w-full border border-gray-200 rounded-lg px-3 text-gray-700 text-sm font-medium focus:border-[#C9A84C] outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Birth Date</label>
+                                <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Anniversary</label>
-                                <input type="date" value={anniversary} onChange={(e) => setAnniversary(e.target.value)} className="input-field py-2.5 w-full border border-gray-200 rounded-lg px-3 text-gray-700 text-sm font-medium focus:border-[#C9A84C] outline-none" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Anniversary</label>
+                                <input type="date" value={anniversary} onChange={(e) => setAnniversary(e.target.value)} className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 pt-1">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Period</label>
-                                <select className="input-field py-2.5 w-full appearance-none text-center font-medium border border-gray-200 bg-gray-50 rounded-lg outline-none cursor-not-allowed">
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Duration</label>
+                                <select className="w-full bg-[#111] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 font-sans text-sm outline-none appearance-none text-center cursor-not-allowed tracking-widest uppercase">
                                     <option value="12">12 Months</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold mb-1 text-gray-800">Amount Per Month (S$)</label>
-                                <select value={amount} onChange={(e) => setAmount(e.target.value)} className="input-field py-2.5 w-full appearance-none font-bold text-primary-gold text-lg border border-gray-200 rounded-lg px-3 text-center focus:border-[#C9A84C] outline-none cursor-pointer">
+                                <label className="block text-[10px] tracking-widest uppercase text-[#D4AF37] mb-1.5 drop-shadow-sm border-b border-[#D4AF37]/30 pb-0.5 inline-block">Mthly Pledge (S$)</label>
+                                <select value={amount} onChange={(e) => { playGoldSound(); setAmount(e.target.value); }} className="w-full bg-[#1A1810] border border-[#D4AF37]/50 text-[#D4AF37] rounded-xl px-4 py-3 text-center focus:outline-none focus:border-[#D4AF37] font-sans text-lg font-bold appearance-none transition-colors shadow-[0_0_15px_rgba(212,175,55,0.1)]">
                                     {[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000].map(val => (
-                                        <option key={val} value={val}>S$ {val}</option>
+                                        <option key={val} value={val} className="bg-black text-[#D4AF37]">S$ {val}</option>
                                     ))}
                                 </select>
                             </div>
                         </div>
 
-                        <div className="flex justify-center items-center mt-3 pt-4">
-                            <label className="flex items-center space-x-2 text-xs text-gray-800 font-medium cursor-pointer">
-                                <input type="checkbox" checked={agreeTerm} onChange={(e) => setAgreeTerm(e.target.checked)} className="form-checkbox h-4 w-4 text-black border-gray-300 rounded-sm focus:ring-black accent-black" />
-                                <span>Agree to <span onClick={(e) => { e.preventDefault(); setShowTerms(true); }} className="font-bold underline underline-offset-2 text-[#C9A84C] hover:text-black transition-colors">Terms & Conditions</span></span>
+                        <div className="pt-2">
+                            <label className="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" checked={agreeTerm} onChange={(e) => { if (e.target.checked) playGoldSound(); setAgreeTerm(e.target.checked); }} className="mt-1 w-4 h-4 rounded border-gray-600 bg-black checked:bg-[#D4AF37] focus:ring-0 accent-[#D4AF37]" />
+                                <span className="text-[10px] uppercase tracking-wider text-[#888] leading-relaxed group-hover:text-[#AAA] transition-colors">
+                                    I acknowledge and consent to the <button onClick={(e) => { e.preventDefault(); playGoldSound(); setShowTerms(true); }} className="text-[#D4AF37] font-bold border-b border-[#D4AF37]/50 hover:border-[#D4AF37] transition-colors ml-1">Vault Regulations & Terms</button>
+                                </span>
                             </label>
                         </div>
 
-                        <button type="submit" disabled={isSubmitting} className="w-full bg-black text-white py-4 mt-6 rounded-xl font-bold text-lg hover:bg-gray-800 transition shadow-lg disabled:opacity-70 focus:outline-none">
-                            {isSubmitting ? 'Applying...' : 'Apply'}
-                        </button>
+                        <motion.button
+                            whileTap={{ scale: 0.98 }}
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black py-4 mt-6 rounded-xl font-bold uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] disabled:opacity-50 transition-all active:scale-[0.98]"
+                        >
+                            {isSubmitting ? 'Finalizing...' : 'Sign Contract'}
+                        </motion.button>
+
                     </form>
-                </div>
+                </motion.div>
             </div>
 
             {/* T&C Modal */}
-            {showTerms && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in cursor-default">
-                    <div className="bg-white rounded-2xl w-full max-w-sm max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up">
-                        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#FAFAFA]">
-                            <h2 className="text-lg font-bold text-gray-900 font-serif">Terms & Conditions</h2>
-                            <button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-black transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="p-5 overflow-y-auto font-inter text-sm text-gray-700 space-y-4 max-h-[60vh] leading-relaxed">
-                            <p className="font-semibold text-black mb-2">Please read carefully</p>
-                            <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus. Members who fail to do so will not be eligible for the 13th month bonus.</p>
-                            <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid. i.e., When a member, who joins the scheme on 1st January 2024, fails to make their monthly instalment for any one month, their scheme will lapse by 1 month causing the scheme period to end on 1st February 2025. Such members can redeem jewellery worth their savings and 13th month bonus after 1st March 2025 or 30 days after their last timely payment.</p>
-                            <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period. Members who wish to redeem their jewellery at an earlier date will not be eligible for the 13th month bonus.</p>
-                            <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
-                            <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
-                            <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                            <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption. Members who wish to redeem jewellery in conjunction with any special offers or promotions will have to forgo their 13th month bonus.</p>
-                            <p>8) Workmanship and other relevant charges will be levied additionally, according to the type of jewellery purchased.</p>
-                            <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                            <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                            <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID (NRIC, Driving Licence) for verification purpose during redemption.</p>
-                            <p>12) DMY Jewellery Pte Ltd gives full guarantee to members for all funds deposited in the Gold Saving Scheme.</p>
-                            <p>13) DMY Jewellery Pte Ltd may, at its sole discretion, with or without prior notice at any time, amend or revise the terms and conditions which will supersede the previous terms and conditions. All members hereby accept the terms and conditions as amended from time to time.</p>
-                            <p>14) Please visit dmyjewellery.com to view updated term and conditions.</p>
-                            <p>15) Any instalment payments made via Debit Cards or Credit Cards will incur 4% administrative charges.</p>
-                            <p>16) ATM transfer not accepted.</p>
-                        </div>
-                        <div className="p-4 border-t border-gray-100 bg-white">
-                            <button
-                                onClick={() => { setAgreeTerm(true); setShowTerms(false); }}
-                                className="w-full py-3 rounded-xl bg-black text-white font-bold transition-transform active:scale-[0.98]">
-                                I Agree
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <AnimatePresence>
+                {showTerms && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="bg-[#0A0A0A] border border-white/10 rounded-3xl w-full max-w-sm max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative"
+                        >
+                            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+
+                            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#111]">
+                                <h2 className="text-sm tracking-widest uppercase font-bold text-[#D4AF37]">Vault Charter</h2>
+                                <button onClick={() => setShowTerms(false)} className="text-[#666] hover:text-[#D4AF37] transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-5 overflow-y-auto font-sans text-xs text-[#888] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
+                                <p className="font-bold text-[#D4AF37] uppercase tracking-wider mb-2">Notice of Agreement</p>
+                                <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus.</p>
+                                <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
+                                <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
+                                <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                                <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                                <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                                <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption.</p>
+                                <p>8) Workmanship and other relevant charges will be levied additionally.</p>
+                                <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                <p>12) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
+                            </div>
+
+                            <div className="p-5 border-t border-white/5 bg-[#0B0B0B]">
+                                <button
+                                    onClick={() => { playGoldSound(); setAgreeTerm(true); setShowTerms(false); }}
+                                    className="w-full py-4 rounded-xl bg-[#D4AF37] text-black font-bold uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-transform active:scale-[0.98]">
+                                    I Accord
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
