@@ -32,7 +32,10 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
         if (!response.ok) {
             const errorMessage = data?.error || data?.message || (typeof data === 'string' ? data : 'An error occurred');
-            throw new Error(errorMessage);
+            const error = new Error(errorMessage);
+            (error as any).field = data?.field; // Attach field mapping for frontend elements
+            (error as any).details = data; // Attach full backend error data
+            throw error;
         }
 
         return data;

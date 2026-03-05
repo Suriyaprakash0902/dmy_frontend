@@ -1,9 +1,41 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Coins, Database, TrendingUp, ShoppingBag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { playGoldSound } from '../utils/sounds';
 
+interface Banner {
+  id: string;
+  image: string;
+}
+
 export default function Home() {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_LIVE_API_URL}/get_banner`);
+        const data = await response.json();
+        if (data.status) {
+          setBanners(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch banners:", error);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentBannerIdx((prev) => (prev + 1) % banners.length);
+    }, 4000); // changes banner every 4 seconds
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -41,17 +73,52 @@ export default function Home() {
         initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative w-full flex flex-col items-center pt-8 pb-12 z-10"
+        className="relative w-full flex flex-col items-center pt-8 pb-8 z-10"
       >
         <div className="text-center mt-2 relative">
           <div className="absolute inset-0 bg-[#D4AF37] blur-[40px] opacity-20 rounded-full" />
           <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="w-48 md:w-64 h-auto relative filter contrast-125 saturate-150 drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]" />
         </div>
 
-        <h2 className="mt-8 text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] font-serif italic text-xl tracking-widest font-light">
+        <h2 className="mt-6 text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] font-serif italic text-xl tracking-widest font-light">
           Welcome to DMY
         </h2>
       </motion.div>
+
+      {/* Dynamic Banner Slider */}
+      {banners.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="px-6 mb-8 relative z-10"
+        >
+          <div className="w-full aspect-[21/8] rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-[rgba(212,175,55,0.2)] relative bg-black">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentBannerIdx}
+                src={banners[currentBannerIdx].image}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0 w-full h-full object-cover"
+                alt={`Banner ${currentBannerIdx + 1}`}
+              />
+            </AnimatePresence>
+
+            {/* Banner Overlay Gradient for Text/Dots visibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
+              {banners.map((_, idx) => (
+                <div key={idx} className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentBannerIdx ? 'w-5 bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,1)]' : 'w-1.5 bg-white/40'}`} />
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Grid of 4 categories */}
       <div className="px-6 -mt-2 relative z-10 pb-20">
@@ -69,7 +136,7 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#111] to-[#1a1a1a] flex items-center justify-center mb-4 border border-[rgba(212,175,55,0.2)] shadow-[inset_0_0_15px_rgba(212,175,55,0.1)] group-hover:shadow-[inset_0_0_25px_rgba(212,175,55,0.3)] transition-shadow">
                 <Coins size={32} className="text-[#D4AF37] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="font-serif italic text-white text-lg tracking-wide group-hover:text-[#D4AF37] transition-colors">Wealth<br /><span className="text-[#888] font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">Vault</span></h3>
+              <h3 className="font-serif italic text-white text-lg tracking-wide group-hover:text-[#D4AF37] transition-colors">Wealth<br /><span className="text-[#888] font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">Scheme</span></h3>
             </Link>
           </motion.div>
 

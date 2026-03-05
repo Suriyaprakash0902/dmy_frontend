@@ -137,7 +137,7 @@ export default function Login() {
                 >
                     <div className="text-center mb-10">
                         <h1 className="text-4xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] tracking-wide mb-2">
-                            Secure Login
+                            Login
                         </h1>
                         <p className="text-[#888] text-sm tracking-widest uppercase font-light">Access your wealth</p>
                     </div>
@@ -217,7 +217,7 @@ export default function Login() {
                                             disabled={isSubmitting}
                                             className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
                                         >
-                                            {isSubmitting ? 'Verifying...' : 'Unlock Vault'}
+                                            {isSubmitting ? 'Verifying...' : 'Verify OTP'}
                                         </motion.button>
                                     </motion.div>
                                 )}
@@ -250,7 +250,7 @@ export default function Login() {
                                         disabled={isSubmitting}
                                         className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
                                     >
-                                        {isSubmitting ? 'Connecting...' : 'Send WhatsApp Key'}
+                                        {isSubmitting ? 'Connecting...' : 'Send WhatsApp OTP'}
                                     </motion.button>
                                 ) : (
                                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
@@ -271,7 +271,7 @@ export default function Login() {
                                             disabled={isSubmitting}
                                             className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
                                         >
-                                            {isSubmitting ? 'Verifying...' : 'Unlock Vault'}
+                                            {isSubmitting ? 'Verifying...' : 'Verify OTP'}
                                         </motion.button>
                                     </motion.div>
                                 )}
@@ -281,9 +281,9 @@ export default function Login() {
 
                     <div className="mt-8 text-center bg-[#111]/50 py-4 rounded-xl border border-white/5 backdrop-blur-sm">
                         <span className="text-[#666] text-xs font-sans tracking-wide">
-                            New Applicant?{' '}
+                            New User?{' '}
                             <Link to="/signup" onClick={() => playGoldSound()} className="text-[#D4AF37] font-bold uppercase tracking-widest hover:text-[#FFF] transition-colors ml-1">
-                                Apply
+                                Sign Up
                             </Link>
                         </span>
                     </div>

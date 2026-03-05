@@ -81,7 +81,7 @@ export default function Landing() {
                         <span className="absolute inset-0 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] rounded-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[pulse_3s_infinite]" />
                         <div className="relative bg-[#0A0A0A] w-full py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all duration-300 group-hover:bg-[#111111] shadow-[0_0_40px_rgba(212,175,55,0.15)] group-hover:shadow-[0_0_60px_rgba(212,175,55,0.3)]">
                             <span className="font-inter font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#E8D08B] to-[#C9A84C] text-[15px] uppercase tracking-widest">
-                                Enter the Vault
+                                Begin Journey
                             </span>
                             <motion.span
                                 animate={{ x: [0, 5, 0] }}
@@ -92,6 +92,7 @@ export default function Landing() {
                             </motion.span>
                         </div>
                     </motion.button>
+
                 </motion.div>
 
             </div>

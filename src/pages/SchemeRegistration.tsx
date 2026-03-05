@@ -42,7 +42,7 @@ export default function SchemeRegistration() {
         e.preventDefault();
         playGoldSound();
         if (!agreeTerm) {
-            toast.error("You must agree to the Vault Terms to proceed.");
+            toast.error("You must agree to the Scheme Terms to proceed.");
             return;
         }
 
@@ -54,7 +54,7 @@ export default function SchemeRegistration() {
             };
 
             await httpService.post('/api/schemes/apply', payload);
-            toast.success("Vault Contract Signed Successfully", { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            toast.success("Scheme Contract Signed Successfully", { style: { background: '#0B0B0B', color: '#D4AF37' } });
             navigate('/scheme');
         } catch (err: any) {
             console.error(err);
@@ -83,7 +83,7 @@ export default function SchemeRegistration() {
                 <Link to="/scheme" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
                     <ArrowLeft size={24} />
                 </Link>
-                <h1 className="text-lg font-serif tracking-widest uppercase text-[#D4AF37]">Vault Registration</h1>
+                <h1 className="text-lg font-serif tracking-widest uppercase text-[#D4AF37]">Scheme Registration</h1>
             </motion.div>
 
             <div className="px-5 mt-8 flex-grow relative z-10">
@@ -199,7 +199,7 @@ export default function SchemeRegistration() {
                             <label className="flex items-start gap-3 cursor-pointer group">
                                 <input type="checkbox" checked={agreeTerm} onChange={(e) => { if (e.target.checked) playGoldSound(); setAgreeTerm(e.target.checked); }} className="mt-1 w-4 h-4 rounded border-gray-600 bg-black checked:bg-[#D4AF37] focus:ring-0 accent-[#D4AF37]" />
                                 <span className="text-[10px] uppercase tracking-wider text-[#888] leading-relaxed group-hover:text-[#AAA] transition-colors">
-                                    I acknowledge and consent to the <button onClick={(e) => { e.preventDefault(); playGoldSound(); setShowTerms(true); }} className="text-[#D4AF37] font-bold border-b border-[#D4AF37]/50 hover:border-[#D4AF37] transition-colors ml-1">Vault Regulations & Terms</button>
+                                    I acknowledge and consent to the <button onClick={(e) => { e.preventDefault(); playGoldSound(); setShowTerms(true); }} className="text-[#D4AF37] font-bold border-b border-[#D4AF37]/50 hover:border-[#D4AF37] transition-colors ml-1">Scheme Regulations & Terms</button>
                                 </span>
                             </label>
                         </div>
@@ -236,7 +236,7 @@ export default function SchemeRegistration() {
                             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
 
                             <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#111]">
-                                <h2 className="text-sm tracking-widest uppercase font-bold text-[#D4AF37]">Vault Charter</h2>
+                                <h2 className="text-sm tracking-widest uppercase font-bold text-[#D4AF37]">Scheme Charter</h2>
                                 <button onClick={() => setShowTerms(false)} className="text-[#666] hover:text-[#D4AF37] transition-colors">
                                     <X size={20} />
                                 </button>

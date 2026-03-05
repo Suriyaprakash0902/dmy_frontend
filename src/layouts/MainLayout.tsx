@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, Database, Coins, Heart, User } from "lucide-react";
+import { Home, Database, Coins, ShoppingBag, User } from "lucide-react";
 
 export default function MainLayout() {
     const location = useLocation();
@@ -8,13 +8,13 @@ export default function MainLayout() {
         { path: "/home", icon: Home },
         { path: "/gold-bars", icon: Database },
         { path: "/scheme", icon: Coins },
-        { path: "/wishlist", icon: Heart },
+        { path: "/products", icon: ShoppingBag },
         { path: "/profile", icon: User },
     ];
 
     return (
         <div className="flex flex-col min-h-screen bg-[#F8F9FA] relative h-full">
-            <div className="flex-1 overflow-y-auto pb-24">
+            <div className="flex-1 overflow-y-auto ">
                 <div className="min-h-full">
                     <Outlet />
                 </div>

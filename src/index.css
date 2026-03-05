@@ -8,7 +8,9 @@
 
   html,
   body {
-    @apply bg-[#050505] text-[#D4AF37] font-sans antialiased overflow-x-hidden m-0 p-0;
+    @apply text-[#D4AF37] font-sans antialiased overflow-x-hidden m-0 p-0;
+    background-color: #050505;
+    overscroll-behavior-y: none;
   }
 
   h1,

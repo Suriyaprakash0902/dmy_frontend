@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Settings, Bell, Heart, CreditCard, ChevronRight, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import { User, LogOut, Heart, ChevronRight, ShieldCheck, Box, TrendingUp, X, Mail, Phone, Calendar } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import httpService from "../services/httpService";
 import toast from "react-hot-toast";
 import { playGoldSound } from "../utils/sounds";
@@ -9,21 +10,41 @@ import { playGoldSound } from "../utils/sounds";
 export default function Profile() {
     const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
+    const [enquiries, setEnquiries] = useState<any[]>([]);
+    const [goldHistory, setGoldHistory] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     useEffect(() => {
-        const fetchProfile = async () => {
+        const fetchProfileData = async () => {
             try {
-                const data = await httpService.get('/api/user/myprofile');
-                setUser(data);
+                const [userData, enquiriesData, goldData] = await Promise.all([
+                    httpService.get('/api/user/myprofile'),
+                    httpService.get('/api/enquiry'),
+                    httpService.get('/api/gold-rates/history')
+                ]);
+
+                setUser(userData);
+                if (enquiriesData && enquiriesData.enquiries) {
+                    setEnquiries(enquiriesData.enquiries);
+                }
+                if (goldData && goldData.history) {
+                    // Format history for recharts
+                    const formatted = goldData.history.map((h: any) => ({
+                        date: new Date(h.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+                        rate22k: h.rate22k,
+                        rate24k: h.rate24k
+                    }));
+                    setGoldHistory(formatted);
+                }
             } catch (error) {
-                console.error("Failed to fetch profile", error);
+                console.error("Failed to fetch profile data", error);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchProfile();
+        fetchProfileData();
     }, []);
 
     const handleLogout = async () => {
@@ -40,11 +61,7 @@ export default function Profile() {
     };
 
     const menuItems = [
-        { icon: User, label: "Vault Identity" },
-        { icon: Heart, label: "Acquisition List" },
-        { icon: CreditCard, label: "Funding sources" },
-        { icon: Bell, label: "Signals" },
-        { icon: Settings, label: "Preferences" }
+        { icon: User, label: "My Profile" },
     ];
 
     const containerVariants = {
@@ -58,7 +75,7 @@ export default function Profile() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#050505] text-[#D4AF37] pb-24 font-sans overflow-hidden page-transition">
+        <div className="w-full min-h-screen bg-[#050505] text-[#D4AF37] pb-24 font-sans overflow-x-hidden page-transition">
             {/* Background Animations */}
             <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
                 <motion.div
@@ -89,7 +106,7 @@ export default function Profile() {
                 </div>
 
                 <h1 className="text-3xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] via-[#D4AF37] to-[#F0E6D2] mb-1 font-light tracking-wide text-center">
-                    {isLoading ? "Authenticating..." : (user?.name || "Vault Member")}
+                    {isLoading ? "Authenticating..." : (user?.name || "DMY Member")}
                 </h1>
 
                 <p className="text-[#888] font-inter text-xs tracking-widest uppercase mb-5">
@@ -102,19 +119,132 @@ export default function Profile() {
                 </div>
             </motion.div>
 
+            {/* Gold Rate History Chart */}
+            {goldHistory.length > 0 && (
+                <div className="px-6 mt-10 relative z-10 w-full overflow-hidden">
+                    <motion.div className="flex items-center justify-between mb-5 pl-2">
+                        <h2 className="text-[10px] font-sans font-bold text-[#666] uppercase tracking-[0.2em] flex items-center gap-2">
+                            <TrendingUp size={14} className="text-[#D4AF37]" />
+                            Market Rate History
+                        </h2>
+                        <span className="text-[10px] bg-[#111] border border-white/10 px-2 py-1 rounded-full text-[#888]">30 Days</span>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-[#0A0A0A] p-5 rounded-3xl border border-white/5 shadow-2xl relative w-full overflow-hidden"
+                    >
+                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+                        <h3 className="text-white font-serif italic mb-6 text-sm flex justify-between">
+                            Gold Bullion (S$/g)
+                            <div className="flex gap-3 items-center">
+                                <span className="flex items-center gap-1 text-[10px] font-sans not-italic text-[#888] tracking-widest uppercase"><div className="w-2 h-2 rounded-full bg-[#D4AF37]"></div> 22K</span>
+                                <span className="flex items-center gap-1 text-[10px] font-sans not-italic text-[#888] tracking-widest uppercase"><div className="w-2 h-2 rounded-full bg-[#FFF5D1]"></div> 24K</span>
+                            </div>
+                        </h3>
+
+                        <div className="w-full h-48 -ml-4">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={goldHistory} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="color22k" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="color24k" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#FFF5D1" stopOpacity={0.15} />
+                                            <stop offset="95%" stopColor="#FFF5D1" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="date" stroke="#444" fontSize={9} tickLine={false} axisLine={false} tickMargin={10} minTickGap={20} />
+                                    <YAxis stroke="#444" fontSize={9} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} domain={['auto', 'auto']} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#111', borderColor: 'rgba(212,175,55,0.3)', borderRadius: '12px', fontSize: '12px', color: '#fff' }}
+                                        itemStyle={{ color: '#D4AF37', fontWeight: 'bold' }}
+                                    />
+                                    <Area type="monotone" dataKey="rate24k" name="24K Rate" stroke="#FFF5D1" strokeWidth={2} fillOpacity={1} fill="url(#color24k)" />
+                                    <Area type="monotone" dataKey="rate22k" name="22K Rate" stroke="#D4AF37" strokeWidth={3} fillOpacity={1} fill="url(#color22k)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Acquisition History */}
+            <div className="px-6 mt-10 relative z-10 w-full overflow-hidden">
+                <motion.div className="flex items-center justify-between mb-5 pl-2">
+                    <h2 className="text-[10px] font-sans font-bold text-[#666] uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Heart size={14} className="text-[#D4AF37]" />
+                        Acquisition History
+                    </h2>
+                    <span className="text-[10px] bg-[#111] border border-white/10 px-2 py-1 rounded-full text-[#888]">{enquiries.length} Requests</span>
+                </motion.div>
+
+                {enquiries.length > 0 ? (
+                    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3 w-full max-w-[100vw] overflow-hidden">
+                        {enquiries.map((enquiry, index) => (
+                            <motion.div key={enquiry.id || index} variants={itemVariants} className="bg-gradient-to-r from-[#111] to-[#0A0A0A] p-4 rounded-3xl border border-white/5 shadow-lg relative overflow-hidden group">
+                                <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#D4AF37] to-transparent rounded-l-3xl opacity-50" />
+                                <div className="flex items-start justify-between gap-2 overflow-hidden">
+                                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                                        <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#111] transition-colors">
+                                            <Box size={20} className="text-[#D4AF37]/70" />
+                                        </div>
+                                        <div className="flex flex-col flex-1 min-w-0">
+                                            <h3 className="font-serif italic text-white text-[15px] truncate max-w-full drop-shadow-md pr-2">{enquiry.item}</h3>
+                                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                                                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#D4AF37] bg-[#D4AF37]/10 px-2.5 py-1 rounded-lg border border-[#D4AF37]/30 whitespace-nowrap">
+                                                    QTY: {enquiry.quantity}
+                                                </span>
+                                                {enquiry.totalPrice > 0 && (
+                                                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#888] whitespace-nowrap">
+                                                        S$ {Number(enquiry.totalPrice).toFixed(2)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                                        <span className={`text-[9px] font-sans font-bold uppercase tracking-widest px-2 py-1 rounded-md mt-1 ${enquiry.status === 'PENDING' ? 'text-[#D4AF37] bg-black border border-[#D4AF37]/30' :
+                                            enquiry.status === 'COMPLETED' ? 'text-green-500 bg-green-500/10 border border-green-500/30' :
+                                                'text-[#888] bg-[#111] border border-white/10'
+                                            }`}>
+                                            {enquiry.status || 'PENDING'}
+                                        </span>
+                                        <span className="text-[9px] text-[#444] tracking-wider whitespace-nowrap">
+                                            {new Date(enquiry.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                ) : (
+                    <div className="bg-[#0A0A0A] p-6 rounded-3xl border border-white/5 text-center flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center mb-3">
+                            <Heart size={20} className="text-[#444]" />
+                        </div>
+                        <p className="text-[#888] text-xs font-sans uppercase tracking-[0.2em]">No Active Requests</p>
+                    </div>
+                )}
+            </div>
+
             {/* Menu Items */}
             <div className="px-6 mt-10 relative z-10">
                 <motion.h2
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
                     className="text-[10px] font-sans font-bold text-[#666] uppercase tracking-[0.2em] mb-5 pl-2"
                 >
-                    Vault Settings
+                    Profile Settings
                 </motion.h2>
 
                 <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3">
                     {menuItems.map((item, index) => (
                         <motion.div key={index} variants={itemVariants}>
-                            <button onClick={() => playGoldSound()} className="w-full bg-[#0B0B0B] p-4 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[rgba(212,175,55,0.3)] hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] relative overflow-hidden">
+                            <button onClick={() => { playGoldSound(); if (item.label === 'My Profile') setShowProfileModal(true); }} className="w-full bg-[#0B0B0B] p-4 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[rgba(212,175,55,0.3)] hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] relative overflow-hidden">
                                 <span className="absolute inset-0 bg-gradient-to-r from-[rgba(212,175,55,0.05)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="w-10 h-10 rounded-full bg-[#111] border border-white/5 flex items-center justify-center group-hover:border-[#D4AF37]/50 transition-colors shadow-inner">
@@ -139,7 +269,7 @@ export default function Profile() {
                     className="w-full bg-[#111] p-4 rounded-xl border border-white/10 flex items-center justify-center gap-2 text-[#888] active:scale-[0.98] transition-all shadow-md hover:text-white hover:bg-[#1A1A1A] hover:border-white/20"
                 >
                     <LogOut size={18} />
-                    <span className="font-sans font-bold text-xs tracking-widest uppercase">Revoke Access</span>
+                    <span className="font-sans font-bold text-xs tracking-widest uppercase">Logout</span>
                 </button>
             </motion.div>
 
@@ -149,6 +279,66 @@ export default function Profile() {
             >
                 System v1.0.0
             </motion.div>
+
+            {/* User Profile Details Modal */}
+            <AnimatePresence>
+                {showProfileModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.2)] rounded-2xl w-full max-w-sm flex flex-col shadow-2xl relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+                            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#111]">
+                                <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Identity Verification</h2>
+                                <button onClick={() => setShowProfileModal(false)} className="text-gray-500 hover:text-white transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-6 flex flex-col items-center">
+                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8A6D1C] flex items-center justify-center border-4 border-black mb-4 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                                    <User size={36} className="text-black" />
+                                </div>
+                                <h3 className="text-2xl font-serif text-white tracking-wide">{user?.name}</h3>
+                                <p className="text-[#D4AF37] text-xs font-sans font-bold tracking-widest uppercase mt-1">Elite Tier Member</p>
+                            </div>
+
+                            <div className="px-6 pb-6 space-y-4">
+                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
+                                    <Mail size={18} className="text-[#888]" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Email</p>
+                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.email || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
+                                    <Phone size={18} className="text-[#888]" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Phone</p>
+                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
+                                    <Calendar size={18} className="text-[#888]" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Access Granted</p>
+                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
