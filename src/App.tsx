@@ -33,7 +33,7 @@ const AuthRoute = () => {
 function App() {
   return (
     <Router basename="/dmy">
-      <div className="min-h-screen w-full max-w-md mx-auto bg-gray-50 shadow-2xl relative h-screen flex flex-col font-sans">
+      <div className="h-[100dvh] w-full max-w-md mx-auto bg-[#050505] shadow-2xl relative flex flex-col font-sans overflow-y-auto overflow-x-hidden scroll-smooth">
         <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { background: '#1a1a1a', color: '#fff', border: '1px solid #C9A84C' }, iconTheme: { primary: '#C9A84C', secondary: '#fff' } }} />
         <Routes>
           {/* Prevent logged in users from seeing auth pages */}
@@ -45,9 +45,8 @@ function App() {
 
           {/* Secure vault routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/home" element={<Home />} />
-
             <Route element={<MainLayout />}>
+              <Route path="/home" element={<Home />} />
               <Route path="/gold-bars" element={<GoldBars />} />
               <Route path="/scheme" element={<Scheme />} />
               <Route path="/scheme/apply" element={<SchemeRegistration />} />

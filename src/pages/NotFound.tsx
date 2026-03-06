@@ -5,7 +5,7 @@ import { playGoldSound } from '../utils/sounds';
 
 export default function NotFound() {
     return (
-        <div className="relative w-full min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 text-white overflow-hidden page-transition">
+        <div className="relative w-full min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 text-white overflow-x-hidden page-transition">
 
             {/* Background Animated Glare */}
             <div className="fixed inset-0 pointer-events-none z-0">

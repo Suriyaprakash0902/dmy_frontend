@@ -110,7 +110,7 @@ export default function Scheme() {
                 amountPaid: amount,
                 status: 'PAID'
             });
-            playGoldSound();
+            playGoldSound(true);
             confetti({
                 particleCount: 200,
                 spread: 90,
@@ -161,7 +161,7 @@ export default function Scheme() {
         const monthsCompleted = successfulPayments.length || 0;
 
         return (
-            <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-hidden">
+            <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-x-hidden">
                 <div className="fixed inset-0 pointer-events-none z-0">
                     <motion.div
                         animate={{ opacity: [0.1, 0.2, 0.1] }}
@@ -382,7 +382,7 @@ export default function Scheme() {
     // --- RENDER SCHEMES LIST ---
     if (hasSchemes && !selectedScheme) {
         return (
-            <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-hidden page-transition">
+            <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-x-hidden page-transition">
                 <motion.div
                     initial={{ y: -50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -549,7 +549,7 @@ export default function Scheme() {
 
     // --- RENDER ZERO SCHEMES / APPLY ---
     return (
-        <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans relative overflow-hidden page-transition">
+        <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans relative overflow-x-hidden page-transition">
             <div className="absolute inset-0 z-0">
                 <motion.div
                     animate={{ rotate: 360 }}

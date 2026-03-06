@@ -109,7 +109,7 @@ export default function Login() {
     };
 
     return (
-        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-hidden page-transition">
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-x-hidden page-transition">
             {/* Background Animations */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
                 <motion.div

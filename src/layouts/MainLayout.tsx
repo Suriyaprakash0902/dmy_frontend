@@ -13,15 +13,15 @@ export default function MainLayout() {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#F8F9FA] relative h-full">
-            <div className="flex-1 overflow-y-auto ">
+        <div className="flex flex-col min-h-screen bg-[#050505] relative">
+            <div className="flex-1 pb-24">
                 <div className="min-h-full">
                     <Outlet />
                 </div>
             </div>
 
             {/* Bottom Navigation Navbar */}
-            <div className="absolute bottom-0 left-0 w-full bg-black py-4 px-6 flex justify-around items-center rounded-t-[30px] z-50">
+            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-black py-4 px-6 flex justify-around items-center rounded-t-[30px] z-[99] border-t border-[#D4AF37]/20 shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
                 {navItems.map((item, i) => {
                     const Icon = item.icon;
                     const isActive = location.pathname.startsWith(item.path);

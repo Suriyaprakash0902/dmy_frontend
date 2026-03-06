@@ -128,7 +128,7 @@ export default function GoldBars() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-hidden page-transition">
+        <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-x-hidden page-transition">
 
             {/* Background Glare */}
             <div className="fixed inset-0 pointer-events-none z-0">

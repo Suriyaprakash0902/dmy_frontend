@@ -64,7 +64,7 @@ export default function SchemeRegistration() {
     };
 
     return (
-        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] pb-10 font-sans page-transition overflow-hidden">
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] pb-10 font-sans page-transition overflow-x-hidden">
             {/* Background Animations */}
             <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
                 <motion.div
