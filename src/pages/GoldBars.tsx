@@ -106,14 +106,14 @@ export default function GoldBars() {
             });
 
             setEnquiryStatus(prev => ({ ...prev, [product.id]: 'success' }));
-            toast.success('Interest Registered', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            toast.success('Enquiry Registered', { style: { background: '#0B0B0B', color: '#D4AF37' } });
             setTimeout(() => {
                 setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
             }, 3000);
         } catch (error) {
             console.error(error);
             setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
-            toast.error('Failed to register interest');
+            toast.error('Failed to Enquiry');
         }
     };
 
@@ -153,7 +153,7 @@ export default function GoldBars() {
                 </Link>
                 <h1 className="text-xl font-serif text-[#D4AF37] ml-4 font-light tracking-widest uppercase">Bullion & Coins</h1>
                 <div className="ml-auto">
-                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                    <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
                 </div>
             </motion.div>
 
@@ -180,7 +180,7 @@ export default function GoldBars() {
                 className="bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] border border-[rgba(212,175,55,0.15)] rounded-2xl p-4 mb-10 flex items-center justify-between relative z-10 shadow-2xl"
             >
                 <div>
-                    <span className="text-[10px] text-[#A3A3A3] font-inter uppercase tracking-[0.2em] block mb-1">Current Base Rate</span>
+                    <span className="text-[10px] text-[#A3A3A3] font-inter uppercase tracking-[0.2em] block mb-1">Current Indicative Rate</span>
                     <h2 className="text-xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] to-[#D4AF37]">S$ {ratePerGram.toFixed(2)} /g</h2>
                 </div>
                 <ShieldCheck size={32} className="text-[#D4AF37]/50 drop-shadow-[0_0_10px_rgba(212,175,55,0.2)]" />
@@ -191,12 +191,19 @@ export default function GoldBars() {
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
                 </div>
             ) : (
-                <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 gap-x-4 gap-y-12 mb-10 relative z-10">
-                    {bullions.map((p) => {
+                <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 gap-x-4 gap-y-12 mb-10 relative z-10 p-2">
+                    {bullions.filter(p => {
+                        const name = p.bullion_name?.toLowerCase() || '';
+                        if (karat === '22') return name.includes('coin');
+                        if (karat === '24') return name.includes('bar');
+                        return true;
+                    }).map((p) => {
                         const qty = quantities[p.id] || 1;
                         const weight = parseWeight(p.bullion_quantity);
                         const price = weight * ratePerGram;
                         const status = enquiryStatus[p.id];
+
+                        const isCoin = karat === '22';
 
                         return (
                             <motion.div variants={itemVariants} key={p.id} className="bg-[#0B0B0B] rounded-[24px] shadow-2xl p-4 flex flex-col items-center relative mt-8 border border-white/5 hover:border-[#D4AF37]/30 transition-colors group">
@@ -206,11 +213,21 @@ export default function GoldBars() {
                                     <motion.div
                                         animate={{ rotateY: [0, 10, -10, 0] }}
                                         transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                                        className={`w-20 h-20 rounded-full bg-gradient-to-br from-[#FFF5D1] via-[#D4AF37] to-[#8A6D1C] flex items-center justify-center border-4 border-[#050505] shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]`}
+                                        className={`${isCoin ? 'w-20 h-20 rounded-full' : 'w-16 h-24 rounded-md'} bg-gradient-to-br from-[#FFF5D1] via-[#D4AF37] to-[#8A6D1C] flex items-center justify-center border-4 border-[#050505] shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]`}
                                     >
                                         <div className="flex flex-col items-center justify-center opacity-80 mix-blend-multiply">
-                                            <span className="text-[14px] font-serif font-black tracking-tighter leading-none text-[#8A6D1C]">DMY</span>
-                                            <span className="text-[10px] font-sans font-bold leading-none text-[#5c4710] tracking-widest mt-0.5">{karat}K</span>
+                                            {isCoin ? (
+                                                <>
+                                                    <span className="text-[14px] font-serif font-black tracking-tighter leading-none text-[#8A6D1C]">DMY</span>
+                                                    <span className="text-[10px] font-sans font-bold leading-none text-[#5c4710] tracking-widest mt-0.5">{karat}K</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="text-[12px] font-serif font-black tracking-tighter leading-none text-[#8A6D1C]">DMY</span>
+                                                    <span className="text-[8px] font-sans font-bold leading-none text-[#5c4710] tracking-widest mt-1">FINE GOLD</span>
+                                                    <span className="text-[9px] font-sans font-bold leading-none text-[#5c4710] tracking-widest mt-1">999.9</span>
+                                                </>
+                                            )}
                                         </div>
                                     </motion.div>
                                 </div>
@@ -246,7 +263,7 @@ export default function GoldBars() {
                                             disabled={status === 'loading'}
                                             className="bg-transparent border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] uppercase tracking-widest px-2 py-3.5 rounded-xl font-bold hover:bg-[#D4AF37] hover:text-black transition-all w-full focus:outline-none disabled:opacity-50"
                                         >
-                                            {status === 'loading' ? 'Processing...' : 'Register Interest'}
+                                            {status === 'loading' ? 'Processing...' : 'Enquiry'}
                                         </button>
                                     )}
                                 </div>
@@ -278,10 +295,14 @@ export default function GoldBars() {
                                 Proceed with securing interest for <strong className="text-white">{(quantities[confirmModal.id] || 1)}x {confirmModal.bullion_name} - {confirmModal.bullion_quantity} ({karat}K)</strong>?
                             </p>
 
-                            <div className="bg-[#111] border border-[rgba(212,175,55,0.1)] rounded-xl py-3 px-4 mb-6 flex justify-between items-center text-center">
+                            <div className="bg-[#111] border border-[rgba(212,175,55,0.1)] rounded-xl py-3 px-4 mb-3 flex justify-between items-center text-center">
                                 <span className="text-[10px] uppercase tracking-widest text-[#666] block">Total Estimated Value</span>
                                 <span className="text-[#D4AF37] font-sans font-bold tracking-wider">S$ {((quantities[confirmModal.id] || 1) * parseWeight(confirmModal.bullion_quantity) * ratePerGram).toFixed(2)}</span>
                             </div>
+
+                            <p className="text-[#A3A3A3] font-sans text-[10px] mb-6 text-center italic bg-white/5 p-2 rounded-lg border border-white/10">
+                                <b>Note:</b> The estimated value shown is for indication only. The final billable amount will be based on the exact base gold rate fixed at the time of final confirmation or collection, which may differ.
+                            </p>
 
                             <div className="flex flex-col gap-3">
                                 <button

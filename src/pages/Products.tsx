@@ -112,14 +112,14 @@ export default function Products() {
             });
 
             setEnquiryStatus(prev => ({ ...prev, [product.id]: 'success' }));
-            toast.success('Interest Registered Successfully', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            toast.success('Enquiry Registered Successfully', { style: { background: '#0B0B0B', color: '#D4AF37' } });
             setTimeout(() => {
                 setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
             }, 3000);
         } catch (error) {
             console.error(error);
             setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
-            toast.error('Failed to register interest');
+            toast.error('Failed to Enquiry');
         }
     };
 
@@ -144,7 +144,7 @@ export default function Products() {
                     </Link>
                     <h1 className="text-xl font-serif text-[#D4AF37] ml-4 font-light tracking-widest uppercase">Trending Products</h1>
                     <div className="ml-auto">
-                        <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                        <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
                     </div>
                 </motion.div>
 
@@ -281,7 +281,7 @@ export default function Products() {
                             </div>
 
                             <p className="text-[#A3A3A3] font-sans text-sm mb-8 text-center leading-relaxed">
-                                Proceed to register interest for <strong className="text-white">{(quantities[confirmModal.id] || 1)}x {confirmModal.pro_name}</strong> from {confirmModal.jewel_category}?
+                                Proceed to Enquiry for <strong className="text-white">{(quantities[confirmModal.id] || 1)}x {confirmModal.pro_name}</strong> from {confirmModal.jewel_category}?
                             </p>
 
                             <div className="flex flex-col gap-3">

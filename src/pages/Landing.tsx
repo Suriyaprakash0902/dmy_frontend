@@ -53,7 +53,7 @@ export default function Landing() {
                         transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
                     >
                         <img
-                            src={import.meta.env.BASE_URL + "logo-main.png"}
+                            src={import.meta.env.BASE_URL + "logo.png"}
                             alt="DMY Jewellers"
                             className="w-56 md:w-72 h-auto drop-shadow-[0_10px_30px_rgba(212,175,55,0.3)] filter contrast-125"
                         />

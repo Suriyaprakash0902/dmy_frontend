@@ -38,9 +38,18 @@ export default function Signup() {
         if (!form.gender) newErrors.gender = 'Selection required';
         if (!form.password || form.password.length < 8) newErrors.password = 'Min 8 characters';
         if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Keys mismatch';
-        if (!otpVerified) newErrors.email = 'Verification required';
+        if (!otpVerified) {
+            newErrors[verificationMethod] = 'Verification required';
+            toast.error('Identity Verification Required. Please verify your OTP to create an account.', { id: 'otp-req' });
+        }
         if (!form.agreeTerms) newErrors.agreeTerms = 'Agreement mandatory';
+
         setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0 && otpVerified) {
+            toast.error('Please fill in all the required fields correctly.', { id: 'fill-req' });
+        }
+
         return Object.keys(newErrors).length === 0;
     };
 
@@ -154,7 +163,7 @@ export default function Signup() {
                     <Link to="/login" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
                         <ArrowLeft size={24} />
                     </Link>
-                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
+                    <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
                 </div>
 
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
@@ -416,8 +425,8 @@ export default function Signup() {
                         <motion.button
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSignup}
-                            disabled={isSubmitting || !otpVerified}
-                            className={`w-full py-4 mt-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all ${(!otpVerified || isSubmitting) ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'}`}
+                            disabled={isSubmitting}
+                            className={`w-full py-4 mt-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'}`}
                         >
                             {isSubmitting ? 'Processing...' : 'Create Account'}
                         </motion.button>

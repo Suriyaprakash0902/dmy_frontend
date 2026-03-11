@@ -48,7 +48,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
 export const httpService = {
     get: (endpoint: string, headers?: HeadersInit) => request(endpoint, { method: 'GET', headers }),
     post: (endpoint: string, body?: any, headers?: HeadersInit) => request(endpoint, { method: 'POST', body: body ? JSON.stringify(body) : undefined, headers }),
-    patch: (endpoint: string, body?: any, headers?: HeadersInit) => request(endpoint, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined, headers }),
+    patch: (endpoint: string, body?: any, headers?: HeadersInit) => request(endpoint, { method: 'PUT', body: body ? JSON.stringify(body) : undefined, headers }),
     delete: (endpoint: string, headers?: HeadersInit) => request(endpoint, { method: 'DELETE', headers }),
 };
 

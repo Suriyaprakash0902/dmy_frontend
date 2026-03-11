@@ -16,6 +16,7 @@ export default function SchemeRegistration() {
 
     const [blockNo, setBlockNo] = useState('');
     const [floorNo, setFloorNo] = useState('');
+    const [unitNo, setUnitNo] = useState('');
     const [street, setStreet] = useState('');
     const [postalCode, setPostalCode] = useState('');
 
@@ -26,6 +27,8 @@ export default function SchemeRegistration() {
     const [agreeTerm, setAgreeTerm] = useState(false);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const todayStr = new Date().toISOString().split('T')[0];
 
     const formatNric = (val: string) => {
         if (!val) return '';
@@ -49,7 +52,7 @@ export default function SchemeRegistration() {
         setIsSubmitting(true);
         try {
             const payload = {
-                name, nric, blockNo, floorNo, street, postalCode, country: 'Singapore',
+                name, nric, blockNo, floorNo, unitNo, street, postalCode, country: 'Singapore',
                 phone, dob, anniversary, period: 12, amount: Number(amount)
             };
 
@@ -127,14 +130,18 @@ export default function SchemeRegistration() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-3">
                             <div>
-                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Block No</label>
-                                <input type="text" value={blockNo} onChange={(e) => setBlockNo(e.target.value)} required placeholder="104" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 border-b border-transparent">Block</label>
+                                <input type="text" value={blockNo} onChange={(e) => setBlockNo(e.target.value)} required placeholder="104" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-3 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
                             </div>
                             <div>
-                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Unit / Floor</label>
-                                <input type="text" value={floorNo} onChange={(e) => setFloorNo(e.target.value)} required placeholder="#10-123" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 border-b border-transparent">Floor</label>
+                                <input type="text" value={floorNo} onChange={(e) => setFloorNo(e.target.value)} required placeholder="#10" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-3 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 border-b border-transparent">Unit</label>
+                                <input type="text" value={unitNo} onChange={(e) => setUnitNo(e.target.value)} required placeholder="123" className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-3 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm transition-colors" />
                             </div>
                         </div>
 
@@ -170,11 +177,11 @@ export default function SchemeRegistration() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Birth Date</label>
-                                <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
+                                <input type="date" value={dob} max={todayStr} onChange={(e) => setDob(e.target.value)} required className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
                             </div>
                             <div>
                                 <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Anniversary</label>
-                                <input type="date" value={anniversary} onChange={(e) => setAnniversary(e.target.value)} className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
+                                <input type="date" value={anniversary} max={todayStr} min={dob ? dob : undefined} onChange={(e) => setAnniversary(e.target.value)} className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors" />
                             </div>
                         </div>
 
@@ -250,12 +257,11 @@ export default function SchemeRegistration() {
                                 <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
                                 <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
                                 <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                                <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption.</p>
-                                <p>8) Workmanship and other relevant charges will be levied additionally.</p>
-                                <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                                <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                                <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
-                                <p>12) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
+                                <p>7) Workmanship and other relevant charges will be levied additionally.</p>
+                                <p>8) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                <p>9) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                <p>10) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                <p>11) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                             </div>
 
                             <div className="p-5 border-t border-white/5 bg-[#0B0B0B]">

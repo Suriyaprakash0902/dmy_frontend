@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { motion } from 'framer-motion';
 import httpService from '../services/httpService';
 import toast from 'react-hot-toast';
@@ -8,7 +8,7 @@ import { playGoldSound } from '../utils/sounds';
 
 export default function Login() {
     const navigate = useNavigate();
-    const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+    const [loginMethod, setLoginMethod] = useState<'password' | 'email' | 'phone'>('password');
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -21,12 +21,48 @@ export default function Login() {
 
     const [otpSent, setOtpSent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const updateFormData = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // --- EMAIL LOGIN (Password + OTP Flow) ---
+    // --- PASSWORD LOGIN FLOW ---
+    const handlePasswordLogin = async () => {
+        playGoldSound();
+        if (!formData.email && !formData.phone) {
+            toast.error('Please enter an Email or Phone number');
+            return;
+        }
+        if (!formData.password) {
+            toast.error('Please enter your password');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const payload: any = { password: formData.password };
+
+            // Auto detect if they entered an email or phone
+            if (formData.email.includes('@')) {
+                payload.email = formData.email;
+            } else {
+                // Formatting for phone if it doesn't have an @
+                const cleanPhone = formData.email.replace(/\D/g, '');
+                payload.phone = cleanPhone.startsWith('65') ? '+' + cleanPhone : '+65' + cleanPhone;
+            }
+
+            const data: any = await httpService.post('/api/auth/login/password', payload);
+            localStorage.setItem('token', data.token);
+            toast.success('Access Granted.', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            navigate('/home');
+        } catch (error: any) {
+            toast.error(error.message || 'Login failed, check credentials.');
+        }
+        setIsSubmitting(false);
+    };
+
+    // --- EMAIL LOGIN (OTP Flow) ---
     const handleEmailOtpLogin = async () => {
         playGoldSound();
         if (!formData.email) {
@@ -126,7 +162,7 @@ export default function Login() {
                     <Link to="/" onClick={() => playGoldSound()} className="text-[#D4AF37] hover:scale-110 transition-transform">
                         <ArrowLeft size={24} />
                     </Link>
-                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
+                    <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 filter contrast-125 opacity-80" />
                 </div>
 
                 <motion.div
@@ -145,8 +181,17 @@ export default function Login() {
                     {/* Method Toggle */}
                     <div className="flex bg-[#111] border border-white/5 rounded-full p-1 mb-8 shadow-inner">
                         <button
+                            onClick={() => { playGoldSound(); setLoginMethod('password'); setOtpSent(false); }}
+                            className={`flex-[1.2] py-3 text-[10px] tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'password'
+                                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                                : 'text-[#888] hover:text-[#D4AF37]'
+                                }`}
+                        >
+                            Password
+                        </button>
+                        <button
                             onClick={() => { playGoldSound(); setLoginMethod('email'); setOtpSent(false); }}
-                            className={`flex-1 py-3 text-xs tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'email'
+                            className={`flex-[0.9] py-3 text-[10px] tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'email'
                                 ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]'
                                 : 'text-[#888] hover:text-[#D4AF37]'
                                 }`}
@@ -155,7 +200,7 @@ export default function Login() {
                         </button>
                         <button
                             onClick={() => { playGoldSound(); setLoginMethod('phone'); setOtpSent(false); }}
-                            className={`flex-1 py-3 text-xs tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'phone'
+                            className={`flex-1 py-3 text-[10px] tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'phone'
                                 ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]'
                                 : 'text-[#888] hover:text-[#D4AF37]'
                                 }`}
@@ -170,6 +215,43 @@ export default function Login() {
                         <div className="absolute inset-0 opacity-10 pointer-events-none">
                             <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white to-transparent rotate-45 animate-shimmer" />
                         </div>
+
+                        {loginMethod === 'password' && (
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-5">
+                                <div>
+                                    <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">Email or Phone Number</label>
+                                    <input
+                                        type="text"
+                                        placeholder="client@vault.com or 87654321"
+                                        value={formData.email} // Reusing formData.email as a generic identifier field
+                                        onChange={(e) => updateFormData('email', e.target.value)}
+                                        className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">Master Password</label>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={(e) => updateFormData('password', e.target.value)}
+                                        className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans tracking-widest"
+                                    />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 bottom-4 text-[#666] hover:text-[#D4AF37]">
+                                        {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+                                    </button>
+                                </div>
+
+                                <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={handlePasswordLogin}
+                                    disabled={isSubmitting}
+                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                >
+                                    {isSubmitting ? 'Authenticating...' : 'Login Securely'}
+                                </motion.button>
+                            </motion.div>
+                        )}
 
                         {loginMethod === 'email' && (
                             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">

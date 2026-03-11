@@ -99,7 +99,7 @@ export default function Scheme() {
         setConfirmBuyModal(false);
         setIsBuying(true);
         const amount = selectedScheme.amount;
-        const gramAccumulated = Number((amount / currentGoldRate).toFixed(4));
+        const gramAccumulated = Number((amount / currentGoldRate).toFixed(2));
 
         try {
             await httpService.post('/api/schemes/buy', {
@@ -185,7 +185,7 @@ export default function Scheme() {
                     </button>
                     <h1 className="text-xl font-serif text-[#D4AF37] ml-4 font-light tracking-widest uppercase">Scheme Plan</h1>
                     <div className="ml-auto">
-                        <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                        <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
                     </div>
                 </motion.div>
 
@@ -211,10 +211,13 @@ export default function Scheme() {
                         <div className="relative z-10 flex flex-col mt-4">
                             <span className="text-gray-400 font-inter text-xs tracking-widest uppercase mb-1 drop-shadow-md">Accumulated Gold</span>
                             <div className="flex items-baseline gap-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                                <h2 className="text-5xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-b from-[#FFF5D1] to-[#D4AF37]">
-                                    {totalGrams.toFixed(4)}
+                                <h2 className="text-5xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-b from-[#FFF5D1] to-[#D4AF37] h-[60px]">
+                                    {totalGrams.toFixed(2)}
                                 </h2>
-                                <span className="text-[#D4AF37] font-bold text-lg tracking-widest">g</span>
+                                <span className="text-[#D4AF37] font-bold text-lg tracking-widest flex items-center gap-2">
+                                    g <span className="text-[9px] bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37] px-1.5 py-0.5 rounded align-middle drop-shadow-none top-[-2px] relative hidden sm:inline-block">22K 916</span>
+                                    <span className="text-[9px] bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37] px-1.5 py-0.5 rounded align-middle drop-shadow-none ml-1 sm:hidden">22K 916</span>
+                                </span>
                             </div>
                         </div>
 
@@ -291,7 +294,7 @@ export default function Scheme() {
                         transition={{ delay: 0.4, duration: 0.8 }}
                         className="mt-8 mb-4"
                     >
-                        <h3 className="text-white/80 font-serif tracking-widest text-sm uppercase mb-3 ml-2">Transaction History</h3>
+                        <h3 className="text-white/80 font-serif tracking-widest text-sm uppercase mb-3 ml-2">Receipt History</h3>
                         <div className="space-y-3">
                             {selectedScheme.payments?.slice().reverse().map((p: any, i: number) => {
                                 const rawDate = new Date(p.createdAt || p.paymentDate);
@@ -318,7 +321,7 @@ export default function Scheme() {
                                                 <p className="text-[#FF4444] text-[10px] tracking-widest uppercase mt-4">Review required</p>
                                             ) : (
                                                 <>
-                                                    <p className="text-[#D4AF37] font-bold">{Number(p.gramAccumulated).toFixed(4)} g</p>
+                                                    <p className="text-[#D4AF37] font-bold">{Number(p.gramAccumulated).toFixed(2)} g</p>
                                                     <p className="text-[#888] text-[10px] mt-0.5">@ S$ {Number(p.goldRate).toFixed(2)}/g</p>
                                                 </>
                                             )}
@@ -354,7 +357,7 @@ export default function Scheme() {
 
                                 <h2 className="text-2xl font-serif text-[#D4AF37] mb-3 text-center">Confirm Authorization</h2>
                                 <p className="text-[#AAA] font-inter text-sm mb-8 text-center leading-relaxed">
-                                    Secure <strong className="text-white font-bold">{currentGoldRate ? (selectedScheme.amount / currentGoldRate).toFixed(4) : '--'}g</strong> of pure 22K gold for <strong className="text-white">Month {buyMonth}</strong> at S$ {selectedScheme.amount}?
+                                    Secure <strong className="text-white font-bold">{currentGoldRate ? (selectedScheme.amount / currentGoldRate).toFixed(2) : '--'}g</strong> of pure 22K gold for <strong className="text-white">Month {buyMonth}</strong> at S$ {selectedScheme.amount}?
                                 </p>
 
                                 <div className="flex flex-col gap-3">
@@ -397,7 +400,7 @@ export default function Scheme() {
                     </Link>
                     <h1 className="text-xl font-serif text-[#D4AF37] ml-4 font-light tracking-widest uppercase">My Scheme Plans</h1>
                     <div className="ml-auto">
-                        <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                        <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
                     </div>
                 </motion.div>
 
@@ -436,10 +439,13 @@ export default function Scheme() {
                                 <div className="relative z-10 flex flex-col mt-4">
                                     <span className="text-gray-400 font-inter text-xs tracking-widest uppercase mb-1 drop-shadow-md">Total Accumulated</span>
                                     <div className="flex items-baseline gap-2 drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                                        <h2 className="text-5xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-b from-[#FFF5D1] to-[#D4AF37]">
-                                            {totalGrams.toFixed(4)}
+                                        <h2 className="text-5xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-b from-[#FFF5D1] to-[#D4AF37] h-[60px]">
+                                            {totalGrams.toFixed(2)}
                                         </h2>
-                                        <span className="text-[#D4AF37] font-bold text-lg tracking-widest">g</span>
+                                        <span className="text-[#D4AF37] font-bold text-lg tracking-widest flex items-center gap-2">
+                                            g <span className="text-[9px] bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37] px-1.5 py-0.5 rounded align-middle drop-shadow-none top-[-2px] relative hidden sm:inline-block">22K 916</span>
+                                            <span className="text-[9px] bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37] px-1.5 py-0.5 rounded align-middle drop-shadow-none ml-1 sm:hidden">22K 916</span>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -502,12 +508,11 @@ export default function Scheme() {
                                     <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
                                     <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
                                     <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                                    <p>7) The 13th month bonus cannot be used in conjunction with any special offers or promotions at the time of redemption.</p>
-                                    <p>8) Workmanship and other relevant charges will be levied additionally.</p>
-                                    <p>9) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                                    <p>10) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                                    <p>11) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
-                                    <p>12) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
+                                    <p>7) Workmanship and other relevant charges will be levied additionally.</p>
+                                    <p>8) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                    <p>9) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                    <p>10) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                    <p>11) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                                 </div>
 
                                 <div className="p-5 border-t border-white/10 bg-[#0A0A0A]">
@@ -567,7 +572,7 @@ export default function Scheme() {
                     <ArrowLeft size={24} />
                 </Link>
                 <div className="ml-auto">
-                    <img src={import.meta.env.BASE_URL + "logo-main.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
+                    <img src={import.meta.env.BASE_URL + "logo.png"} alt="DMY Jewellers" className="h-8 w-auto filter contrast-125 saturate-150" />
                 </div>
             </motion.div>
 
@@ -628,10 +633,17 @@ export default function Scheme() {
                             </div>
 
                             <div className="p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
-                                <p>1) Members must complete all monthly payments promptly for 12 months as scheduled...</p>
-                                <p>2) Members who fail to make a payment in a given month will have their scheme period extended...</p>
-                                <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds...</p>
-                                <p className="italic text-[#777]">Note: Full extensive terms apply. Visit dmyjewellery.com for details.</p>
+                                <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus.</p>
+                                <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
+                                <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
+                                <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                                <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                                <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                                <p>7) Workmanship and other relevant charges will be levied additionally.</p>
+                                <p>8) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                <p>9) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                <p>10) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                <p>11) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                             </div>
 
                             <div className="p-5 border-t border-white/10 bg-[#0A0A0A]">

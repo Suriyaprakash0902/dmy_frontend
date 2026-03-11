@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Heart, ChevronRight, ShieldCheck, Box, TrendingUp, X, Mail, Phone, Calendar } from "lucide-react";
+import { User, LogOut, Heart, ChevronRight, ShieldCheck, Box, TrendingUp, X, Mail, Phone, Calendar, Palette } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import httpService from "../services/httpService";
@@ -62,6 +62,7 @@ export default function Profile() {
 
     const menuItems = [
         { icon: User, label: "My Profile" },
+        { icon: Palette, label: "Theme Settings", action: () => { playGoldSound(); navigate('/theme-settings'); } }
     ];
 
     const containerVariants = {
@@ -244,7 +245,7 @@ export default function Profile() {
                 <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3">
                     {menuItems.map((item, index) => (
                         <motion.div key={index} variants={itemVariants}>
-                            <button onClick={() => { playGoldSound(); if (item.label === 'My Profile') setShowProfileModal(true); }} className="w-full bg-[#0B0B0B] p-4 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[rgba(212,175,55,0.3)] hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] relative overflow-hidden">
+                            <button onClick={() => { playGoldSound(); if (item.action) { item.action(); } else if (item.label === 'My Profile') { setShowProfileModal(true); } }} className="w-full bg-[#0B0B0B] p-4 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[rgba(212,175,55,0.3)] hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] relative overflow-hidden">
                                 <span className="absolute inset-0 bg-gradient-to-r from-[rgba(212,175,55,0.05)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="w-10 h-10 rounded-full bg-[#111] border border-white/5 flex items-center justify-center group-hover:border-[#D4AF37]/50 transition-colors shadow-inner">
