@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { ShoppingBag, ArrowLeft, Check, Minus, Plus, X } from 'lucide-react';
-import httpService from '../services/httpService';
-import toast from 'react-hot-toast';
+import { ShoppingBag, ArrowLeft, X } from 'lucide-react';
+// import httpService from '../services/httpService';
+// import toast from 'react-hot-toast';
 import { playGoldSound } from "../utils/sounds";
 
 interface Product {
@@ -30,9 +30,9 @@ export default function Products() {
     const [loading, setLoading] = useState(true);
 
     // Interest logic state
-    const [quantities, setQuantities] = useState<Record<string, number>>({});
-    const [enquiryStatus, setEnquiryStatus] = useState<Record<string, string>>({});
-    const [confirmModal, setConfirmModal] = useState<Product | null>(null);
+    // const [quantities, setQuantities] = useState<Record<string, number>>({});
+    // const [enquiryStatus, setEnquiryStatus] = useState<Record<string, string>>({});
+    // const [confirmModal, setConfirmModal] = useState<Product | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const location = useLocation();
@@ -83,45 +83,45 @@ export default function Products() {
         }
     };
 
-    const handleQuantity = (id: string, delta: number) => {
-        setQuantities(prev => {
-            const current = prev[id] || 1;
-            const next = current + delta;
-            if (next < 1) return prev;
-            return { ...prev, [id]: next };
-        });
-    };
+    // const handleQuantity = (id: string, delta: number) => {
+    //     setQuantities(prev => {
+    //         const current = prev[id] || 1;
+    //         const next = current + delta;
+    //         if (next < 1) return prev;
+    //         return { ...prev, [id]: next };
+    //     });
+    // };
 
-    const triggerEnquire = (product: Product) => {
-        setConfirmModal(product);
-    };
+    // const triggerEnquire = (product: Product) => {
+    //     setConfirmModal(product);
+    // };
 
-    const handleEnquire = async () => {
-        if (!confirmModal) return;
-        const product = confirmModal;
-        setConfirmModal(null);
+    // const handleEnquire = async () => {
+    //     if (!confirmModal) return;
+    //     const product = confirmModal;
+    //     setConfirmModal(null);
 
-        const qty = quantities[product.id] || 1;
+    //     const qty = quantities[product.id] || 1;
 
-        try {
-            setEnquiryStatus(prev => ({ ...prev, [product.id]: 'loading' }));
-            await httpService.post('/api/enquiry', {
-                item: `${product.pro_name} (${product.jewel_category}) - ${product.pro_quantity}`,
-                quantity: qty,
-                totalPrice: 0 // Price unavailable from this API, keeping 0 to match DB schema if required
-            });
+    //     try {
+    //         setEnquiryStatus(prev => ({ ...prev, [product.id]: 'loading' }));
+    //         await httpService.post('/api/enquiry', {
+    //             item: `${product.pro_name} (${product.jewel_category}) - ${product.pro_quantity}`,
+    //             quantity: qty,
+    //             totalPrice: 0 // Price unavailable from this API, keeping 0 to match DB schema if required
+    //         });
 
-            setEnquiryStatus(prev => ({ ...prev, [product.id]: 'success' }));
-            toast.success('Enquiry Registered Successfully', { style: { background: '#0B0B0B', color: '#D4AF37' } });
-            setTimeout(() => {
-                setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
-            }, 3000);
-        } catch (error) {
-            console.error(error);
-            setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
-            toast.error('Failed to Enquiry');
-        }
-    };
+    //         setEnquiryStatus(prev => ({ ...prev, [product.id]: 'success' }));
+    //         toast.success('Enquiry Registered Successfully', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+    //         setTimeout(() => {
+    //             setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
+    //         }, 3000);
+    //     } catch (error) {
+    //         console.error(error);
+    //         setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
+    //         toast.error('Failed to Enquiry');
+    //     }
+    // };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#050505] pb-32 font-sans overflow-x-hidden page-transition">
@@ -155,7 +155,7 @@ export default function Products() {
                             onClick={() => navigate('/products')}
                             className={`flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 snap-center border ${!categoryId
                                 ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)]'
-                                : 'bg-[#151515] text-[#888] border-white/5 hover:border-[#D4AF37]/30 hover:text-white'
+                                : 'bg-[#111111] text-[#A3A3A3] border-[#333333] hover:border-[#D4AF37]/50 hover:text-[#D4AF37]'
                                 }`}
                         >
                             All Categories
@@ -166,7 +166,7 @@ export default function Products() {
                                 onClick={() => handleCategoryClick(cat.id)}
                                 className={`flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 snap-center border ${categoryId === cat.id
                                     ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)]'
-                                    : 'bg-[#151515] text-[#888] border-white/5 hover:border-[#D4AF37]/30 hover:text-white'
+                                    : 'bg-[#111111] text-[#A3A3A3] border-[#333333] hover:border-[#D4AF37]/50 hover:text-[#D4AF37]'
                                     }`}
                             >
                                 {cat.jewel_category}
@@ -180,8 +180,9 @@ export default function Products() {
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
                     </div>
                 ) : filteredProducts.length === 0 ? (
-                    <div className="text-center py-10 bg-[#0A0A0A] rounded-3xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                        <ShoppingBag size={48} className="mx-auto text-white/20 mb-4" />
+                    <div className="text-center py-10 bg-[#111111] rounded-3xl border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                        <ShoppingBag size={48} className="mx-auto text-[#A3A3A3] mb-4 opacity-50" />
                         <h3 className="text-xl font-serif italic text-white">No Products Found</h3>
                         <p className="text-[#888] font-sans text-sm mt-2">Check back later or browse other categories.</p>
                         {categoryId && (
@@ -193,8 +194,8 @@ export default function Products() {
                 ) : (
                     <div className="grid grid-cols-2 gap-4">
                         {filteredProducts.map((product, index) => {
-                            const qty = quantities[product.id] || 1;
-                            const status = enquiryStatus[product.id];
+                            // const qty = quantities[product.id] || 1;
+                            // const status = enquiryStatus[product.id];
 
                             return (
                                 <motion.div
@@ -202,8 +203,9 @@ export default function Products() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.4, delay: index * 0.05 }}
-                                    className="bg-[#0A0A0A] rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 hover:border-[#D4AF37]/50 transition-all group flex flex-col"
+                                    className="bg-[#111111] rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all group flex flex-col relative"
                                 >
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
                                     <div className="w-full aspect-square relative flex items-center justify-center p-2 mb-2">
                                         <img
                                             src={product.image}
@@ -214,37 +216,37 @@ export default function Products() {
                                             {product.pro_quantity}
                                         </div>
                                     </div>
-                                    <div className="px-4 pb-4 flex-1 flex flex-col justify-end bg-gradient-to-b from-[#111]/0 to-[#0A0A0A]">
+                                    <div className="px-4 pb-4 flex-1 flex flex-col justify-end bg-gradient-to-b from-transparent to-[#1A1A1A]">
                                         <h3 className="font-serif text-white text-[15px] tracking-wide group-hover:text-[#D4AF37] transition-colors line-clamp-1 mb-0.5">{product.pro_name}</h3>
                                         <p className="text-[#888] font-sans text-[11px] italic mb-4">{product.jewel_category}</p>
 
                                         {/* Quantity Selector */}
-                                        <div className="flex items-center justify-between bg-[#151515] border border-white/5 rounded-xl p-1 w-full mb-3">
-                                            <button onClick={() => handleQuantity(product.id, -1)} className="p-1.5 rounded-lg text-[#888] hover:text-[#D4AF37] hover:bg-[#222] transition-colors">
+                                        {/* <div className="flex items-center justify-between bg-[#111111] border border-[#333333] rounded-xl p-1 w-full mb-3 shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
+                                            <button onClick={() => handleQuantity(product.id, -1)} className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#D4AF37] hover:bg-[#222] transition-colors">
                                                 <Minus size={14} />
                                             </button>
-                                            <span className="font-sans font-bold text-sm text-white w-6 text-center">{qty}</span>
-                                            <button onClick={() => handleQuantity(product.id, 1)} className="p-1.5 rounded-lg text-[#888] hover:text-[#D4AF37] hover:bg-[#222] transition-colors">
+                                            <span className="font-sans font-bold text-sm text-[#D4AF37] w-6 text-center">{qty}</span>
+                                            <button onClick={() => handleQuantity(product.id, 1)} className="p-1.5 rounded-lg text-[#A3A3A3] hover:text-[#D4AF37] hover:bg-[#222] transition-colors">
                                                 <Plus size={14} />
                                             </button>
-                                        </div>
+                                        </div> */}
 
                                         {/* Register Button */}
-                                        {status === 'success' ? (
-                                            <button disabled className="bg-[#D4AF37] text-black text-[10px] uppercase tracking-widest px-2 py-3 rounded-xl font-bold w-full shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center justify-center gap-1">
+                                        {/* {status === 'success' ? (
+                                            <button disabled className="bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] text-[10px] uppercase tracking-widest px-2 py-3 rounded-xl font-bold w-full shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center justify-center gap-1">
                                                 <Check size={14} />
                                             </button>
                                         ) : (
                                             <button
                                                 onClick={() => triggerEnquire(product)}
                                                 disabled={status === 'loading'}
-                                                className="bg-transparent border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] uppercase tracking-widest px-2 py-3 rounded-xl font-bold hover:bg-[#D4AF37] hover:text-black transition-all w-full focus:outline-none disabled:opacity-50"
+                                                className="bg-transparent border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] uppercase tracking-widest px-2 py-3 rounded-xl font-bold hover:bg-[#D4AF37] hover:text-[#0A0A0A] transition-all w-full focus:outline-none disabled:opacity-50"
                                             >
                                                 {status === 'loading' ? 'Processing...' : 'Register'}
                                             </button>
-                                        )}
+                                        )} */}
 
-                                        <div className="mt-3 flex items-center justify-center pt-2 border-t border-white/5">
+                                        <div className="mt-3 flex items-center justify-center pt-2 border-t border-[#333333]">
                                             <span className="text-[#D4AF37] text-[9px] uppercase tracking-widest font-bold">{product.jewel_type}</span>
                                         </div>
                                     </div>
@@ -256,7 +258,7 @@ export default function Products() {
             </div>
 
             {/* Confirmation Modal */}
-            <AnimatePresence>
+            {/* <AnimatePresence>
                 {confirmModal && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -268,14 +270,14 @@ export default function Products() {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-[#0B0B0B] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl relative overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm p-6 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                         >
-                            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
                             <h2 className="text-xl font-serif text-[#D4AF37] mb-4 text-center">Confirm Interest</h2>
 
                             <div className="mb-6 flex justify-center">
-                                <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 p-1 bg-black">
+                                <div className="w-24 h-24 rounded-2xl overflow-hidden border border-[#D4AF37]/50 p-1 bg-[#1A1A1A] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                                     <img src={confirmModal.image} alt={confirmModal.pro_name} className="w-full h-full object-contain rounded-xl" />
                                 </div>
                             </div>
@@ -287,7 +289,7 @@ export default function Products() {
                             <div className="flex flex-col gap-3">
                                 <button
                                     onClick={handleEnquire}
-                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-[0.98] transition-transform"
+                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:opacity-90 active:scale-[0.98] transition-all"
                                 >
                                     Confirm Enquiry
                                 </button>
@@ -301,7 +303,7 @@ export default function Products() {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
 
             {/* Image Viewer Modal */}
             <AnimatePresence>

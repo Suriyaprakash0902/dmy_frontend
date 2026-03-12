@@ -8,10 +8,10 @@ import { playGoldSound } from '../utils/sounds';
 
 export default function ThemeSettings() {
     const [theme, setTheme] = useState({
-        primaryColor: '#E3B938',
-        backgroundColor: '#013D42',
-        cardColor: '#02444A',
-        buttonColor: '#011C1E',
+        primaryColor: '#D4AF37',
+        backgroundColor: '#050505',
+        cardColor: '#111111',
+        buttonColor: '#1A1A1A',
         textColor: '#FFFFFF',
     });
     const [isLoading, setIsLoading] = useState(true);
@@ -26,10 +26,10 @@ export default function ThemeSettings() {
             const data: any = await httpService.get('/api/theme');
             if (data) {
                 setTheme({
-                    primaryColor: data.primaryColor || '#E3B938',
-                    backgroundColor: data.backgroundColor || '#013D42',
-                    cardColor: data.cardColor || '#02444A',
-                    buttonColor: data.buttonColor || '#011C1E',
+                    primaryColor: data.primaryColor || '#D4AF37',
+                    backgroundColor: data.backgroundColor || '#050505',
+                    cardColor: data.cardColor || '#111111',
+                    buttonColor: data.buttonColor || '#1A1A1A',
                     textColor: data.textColor || '#FFFFFF',
                 });
             }
@@ -65,10 +65,10 @@ export default function ThemeSettings() {
     const handleReset = () => {
         playGoldSound();
         setTheme({
-            primaryColor: '#E3B938',
-            backgroundColor: '#013D42',
-            cardColor: '#02444A',
-            buttonColor: '#011C1E',
+            primaryColor: '#D4AF37',
+            backgroundColor: '#050505',
+            cardColor: '#111111',
+            buttonColor: '#1A1A1A',
             textColor: '#FFFFFF',
         });
     };
@@ -103,20 +103,20 @@ export default function ThemeSettings() {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen flex justify-center items-center bg-[var(--color-bg,#013D42)] text-[var(--color-primary,#E3B938)]">Loading...</div>;
+        return <div className="min-h-screen flex justify-center items-center bg-[#050505] text-[#D4AF37]">Loading...</div>;
     }
 
     return (
-        <div className="relative min-h-screen bg-[var(--color-bg,#050505)] text-[var(--color-text,#D4AF37)] overflow-y-auto pb-24 page-transition custom-scrollbar text-white">
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-y-auto pb-24 page-transition custom-scrollbar text-white">
             {/* Header */}
-            <div className="sticky top-0 z-50 bg-[var(--color-bg,#050505)]/80 backdrop-blur-xl border-b border-white/5 px-6 py-5 flex items-center justify-between">
+            <div className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-[#333333] px-6 py-5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link to="/profile" onClick={() => playGoldSound()}>
-                        <div className="p-2 bg-white/5 rounded-full text-[var(--color-primary,#D4AF37)] hover:bg-[var(--color-primary,#D4AF37)] hover:text-black transition-colors">
+                        <div className="p-2 bg-white/5 rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0A0A0A] transition-colors">
                             <ArrowLeft size={20} />
                         </div>
                     </Link>
-                    <h1 className="text-xl font-serif text-[var(--color-primary,#D4AF37)] tracking-wide">Theme Settings</h1>
+                    <h1 className="text-xl font-serif text-[#D4AF37] tracking-wide">Theme Settings</h1>
                 </div>
                 <button
                     onClick={handleReset}
@@ -145,7 +145,8 @@ export default function ThemeSettings() {
                     <p className="text-xs text-gray-500">Pick your custom brand colors. They will be applied instantly to all app views upon saving.</p>
                 </div>
 
-                <div className="space-y-6 bg-[var(--color-card,#0A0A0A)] border border-white/5 rounded-3xl p-6 shadow-2xl">
+                <div className="space-y-6 bg-[#111111] border border-[#D4AF37]/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
                     {/* Primary Color */}
                     <div className="flex flex-col space-y-2">
@@ -158,7 +159,7 @@ export default function ThemeSettings() {
                                 onChange={handleChange}
                                 className="w-14 h-14 rounded-xl cursor-pointer border-0 bg-transparent"
                             />
-                            <div className="flex-1 bg-[var(--color-btn,#111111)] border border-white/5 rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
+                            <div className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
                                 {theme.primaryColor.toUpperCase()}
                             </div>
                         </div>
@@ -175,7 +176,7 @@ export default function ThemeSettings() {
                                 onChange={handleChange}
                                 className="w-14 h-14 rounded-xl cursor-pointer border-0 bg-transparent"
                             />
-                            <div className="flex-1 bg-[var(--color-btn,#111111)] border border-white/5 rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
+                            <div className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
                                 {theme.backgroundColor.toUpperCase()}
                             </div>
                         </div>
@@ -192,7 +193,7 @@ export default function ThemeSettings() {
                                 onChange={handleChange}
                                 className="w-14 h-14 rounded-xl cursor-pointer border-0 bg-transparent"
                             />
-                            <div className="flex-1 bg-[var(--color-btn,#111111)] border border-white/5 rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
+                            <div className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
                                 {theme.cardColor.toUpperCase()}
                             </div>
                         </div>
@@ -209,7 +210,7 @@ export default function ThemeSettings() {
                                 onChange={handleChange}
                                 className="w-14 h-14 rounded-xl cursor-pointer border-0 bg-transparent"
                             />
-                            <div className="flex-1 bg-[var(--color-btn,#111111)] border border-white/5 rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
+                            <div className="flex-1 bg-[#1A1A1A] border border-[#333333] rounded-xl px-4 py-3 font-mono text-sm tracking-wider">
                                 {theme.buttonColor.toUpperCase()}
                             </div>
                         </div>
@@ -221,7 +222,7 @@ export default function ThemeSettings() {
                     <h3 className="text-[10px] tracking-widest uppercase text-[#A3A3A3]">Live Preview Example</h3>
                     <div
                         style={{ backgroundColor: theme.cardColor }}
-                        className="rounded-3xl p-6 border border-white/5 shadow-2xl relative overflow-hidden"
+                        className="rounded-3xl p-6 border border-[#333333] shadow-[0_0_30px_rgba(212,175,55,0.1)] relative overflow-hidden"
                     >
                         <div
                             style={{ backgroundColor: theme.backgroundColor }}
@@ -242,7 +243,7 @@ export default function ThemeSettings() {
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="w-full py-4 mt-8 flex items-center justify-center gap-2 bg-[var(--color-primary,#D4AF37)] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all"
+                    className="w-full py-4 mt-8 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all hover:opacity-90 active:scale-[0.98]"
                 >
                     <Save size={16} />
                     {isSaving ? 'Syncing...' : 'Save Theme Globally'}

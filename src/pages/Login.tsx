@@ -179,7 +179,7 @@ export default function Login() {
                     </div>
 
                     {/* Method Toggle */}
-                    <div className="flex bg-[#111] border border-white/5 rounded-full p-1 mb-8 shadow-inner">
+                    <div className="flex bg-[#111111] border border-[#333333] rounded-full p-1 mb-8 shadow-inner">
                         <button
                             onClick={() => { playGoldSound(); setLoginMethod('password'); setOtpSent(false); }}
                             className={`flex-[1.2] py-3 text-[10px] tracking-widest uppercase rounded-full transition-all duration-300 font-bold ${loginMethod === 'password'
@@ -209,7 +209,8 @@ export default function Login() {
                         </button>
                     </div>
 
-                    <div className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.15)] rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                    <div className="bg-[#111111] border border-[#D4AF37]/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
                         {/* Shimmer effect inside card */}
                         <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -225,7 +226,7 @@ export default function Login() {
                                         placeholder="client@vault.com or 87654321"
                                         value={formData.email} // Reusing formData.email as a generic identifier field
                                         onChange={(e) => updateFormData('email', e.target.value)}
-                                        className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
+                                        className="w-full bg-[#1A1A1A] border border-[#333333] text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
                                     />
                                 </div>
                                 <div className="relative">
@@ -235,7 +236,7 @@ export default function Login() {
                                         placeholder="••••••••"
                                         value={formData.password}
                                         onChange={(e) => updateFormData('password', e.target.value)}
-                                        className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans tracking-widest"
+                                        className="w-full bg-[#1A1A1A] border border-[#333333] text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans tracking-widest"
                                     />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 bottom-4 text-[#666] hover:text-[#D4AF37]">
                                         {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
@@ -246,7 +247,7 @@ export default function Login() {
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handlePasswordLogin}
                                     disabled={isSubmitting}
-                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2 hover:opacity-90 transition-all active:scale-[0.98]"
                                 >
                                     {isSubmitting ? 'Authenticating...' : 'Login Securely'}
                                 </motion.button>
@@ -263,7 +264,7 @@ export default function Login() {
                                         disabled={otpSent}
                                         value={formData.email}
                                         onChange={(e) => updateFormData('email', e.target.value)}
-                                        className="w-full bg-[#151515] border border-white/5 disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
+                                        className="w-full bg-[#1A1A1A] border border-[#333333] disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#D4AF37] transition-colors font-sans text-sm"
                                     />
                                 </div>
 
@@ -273,7 +274,7 @@ export default function Login() {
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleEmailOtpLogin}
                                             disabled={isSubmitting}
-                                            className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                            className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2 hover:opacity-90 transition-all active:scale-[0.98]"
                                         >
                                             {isSubmitting ? 'Sending Request...' : 'Send Access Code'}
                                         </motion.button>
@@ -290,14 +291,14 @@ export default function Login() {
                                                 maxLength={4}
                                                 value={formData.emailOtp}
                                                 onChange={(e) => updateFormData('emailOtp', e.target.value.replace(/\D/g, ''))}
-                                                className="w-full bg-[#151515] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
+                                                className="w-full bg-[#1A1A1A] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
                                             />
                                         </div>
                                         <motion.button
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleVerifyEmailOtp}
                                             disabled={isSubmitting}
-                                            className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
+                                            className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2 hover:opacity-90 transition-all active:scale-[0.98]"
                                         >
                                             {isSubmitting ? 'Verifying...' : 'Verify OTP'}
                                         </motion.button>
@@ -310,8 +311,8 @@ export default function Login() {
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
                                 <div>
                                     <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">WhatsApp Number</label>
-                                    <div className="flex bg-[#151515] border border-white/5 rounded-xl disabled:opacity-50 overflow-hidden focus-within:border-[#D4AF37] transition-colors">
-                                        <span className="flex items-center justify-center px-4 bg-[#111] border-r border-white/5 text-[#D4AF37] font-bold text-sm">
+                                    <div className="flex bg-[#1A1A1A] border border-[#333333] rounded-xl disabled:opacity-50 overflow-hidden focus-within:border-[#D4AF37] transition-colors">
+                                        <span className="flex items-center justify-center px-4 bg-[#111111] border-r border-[#333333] text-[#D4AF37] font-bold text-sm">
                                             +65
                                         </span>
                                         <input
@@ -330,7 +331,7 @@ export default function Login() {
                                         whileTap={{ scale: 0.98 }}
                                         onClick={handlePhoneLogin}
                                         disabled={isSubmitting}
-                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2"
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2 hover:opacity-90 transition-all active:scale-[0.98]"
                                     >
                                         {isSubmitting ? 'Connecting...' : 'Send WhatsApp OTP'}
                                     </motion.button>
@@ -344,14 +345,14 @@ export default function Login() {
                                                 maxLength={4}
                                                 value={formData.phoneOtp}
                                                 onChange={(e) => updateFormData('phoneOtp', e.target.value.replace(/\D/g, ''))}
-                                                className="w-full bg-[#151515] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
+                                                className="w-full bg-[#1A1A1A] border border-[#D4AF37]/50 text-white rounded-xl px-4 py-4 text-center tracking-[1em] text-xl focus:outline-none focus:border-[#D4AF37] transition-colors"
                                             />
                                         </div>
                                         <motion.button
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleVerifyPhoneOtp}
                                             disabled={isSubmitting}
-                                            className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-2"
+                                            className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] mt-2 hover:opacity-90 transition-all active:scale-[0.98]"
                                         >
                                             {isSubmitting ? 'Verifying...' : 'Verify OTP'}
                                         </motion.button>
@@ -361,7 +362,7 @@ export default function Login() {
                         )}
                     </div>
 
-                    <div className="mt-8 text-center bg-[#111]/50 py-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                    <div className="mt-8 text-center bg-[#111111]/50 py-4 rounded-xl border border-[#333333] backdrop-blur-sm">
                         <span className="text-[#666] text-xs font-sans tracking-wide">
                             New User?{' '}
                             <Link to="/signup" onClick={() => playGoldSound()} className="text-[#D4AF37] font-bold uppercase tracking-widest hover:text-[#FFF] transition-colors ml-1">

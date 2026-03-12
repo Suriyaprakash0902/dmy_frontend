@@ -131,46 +131,46 @@ export default function Home() {
 
           {/* Scheme */}
           <motion.div variants={itemVariants}>
-            <Link to="/scheme" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-black/5 hover:border-[var(--color-primary,#D4AF37)]/50 transition-all active:scale-[0.98] group overflow-hidden relative">
-              <span className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[inset_0_0_25px_rgba(212,175,55,0.3)] relative z-10 bg-[var(--color-btn,#111111)] border border-[var(--color-card,#1a1a1a)]">
-                <Coins size={32} className="text-[var(--color-primary,#D4AF37)] group-hover:scale-110 transition-transform duration-300" />
+            <Link to="/scheme" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all active:scale-[0.98] group overflow-hidden relative">
+              <span className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] relative z-10 bg-[#050505] border border-[#D4AF37]/20">
+                <Coins size={32} className="text-[#D4AF37] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="font-serif italic text-gray-900 text-lg tracking-wide group-hover:text-[var(--color-primary,#D4AF37)] transition-colors relative z-10">Wealth<br /><span className="text-gray-500 font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">Scheme</span></h3>
+              <h3 className="font-serif italic text-[#050505] text-lg tracking-wide transition-all relative z-10 font-bold">Wealth<br /><span className="text-[#050505] font-sans font-medium not-italic text-[10px] uppercase tracking-[0.2em] mt-1 block">Scheme</span></h3>
             </Link>
           </motion.div>
 
           {/* Gold Coins */}
           <motion.div variants={itemVariants}>
-            <Link to="/gold-bars" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-black/5 hover:border-[var(--color-primary,#D4AF37)]/50 transition-all active:scale-[0.98] group overflow-hidden relative">
-              <span className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[inset_0_0_25px_rgba(212,175,55,0.3)] relative z-10 bg-[var(--color-btn,#111111)] border border-[var(--color-card,#1a1a1a)]">
-                <Database size={32} className="text-[var(--color-primary,#D4AF37)] group-hover:scale-110 transition-transform duration-300" />
+            <Link to="/gold-bars" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all active:scale-[0.98] group overflow-hidden relative">
+              <span className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] relative z-10 bg-[#050505] border border-[#D4AF37]/20">
+                <Database size={32} className="text-[#D4AF37] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="font-serif italic text-gray-900 text-lg tracking-wide group-hover:text-[var(--color-primary,#D4AF37)] transition-colors relative z-10">Bullion<br /><span className="text-gray-500 font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">& Coins</span></h3>
+              <h3 className="font-serif italic text-[#050505] text-lg tracking-wide transition-all relative z-10 font-bold">Bullion<br /><span className="text-[#050505] font-sans font-medium not-italic text-[10px] uppercase tracking-[0.2em] mt-1 block">& Coins</span></h3>
             </Link>
           </motion.div>
 
           {/* Trending Categories */}
           <motion.div variants={itemVariants}>
-            <Link to="/categories" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-black/5 hover:border-[var(--color-primary,#D4AF37)]/50 transition-all active:scale-[0.98] group overflow-hidden relative">
-              <span className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[inset_0_0_25px_rgba(212,175,55,0.3)] relative z-10 bg-[var(--color-btn,#111111)] border border-[var(--color-card,#1a1a1a)]">
-                <TrendingUp size={32} className="text-[var(--color-primary,#D4AF37)] group-hover:scale-110 transition-transform duration-300" />
+            <Link to="/categories" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all active:scale-[0.98] group overflow-hidden relative">
+              <span className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] relative z-10 bg-[#050505] border border-[#D4AF37]/20">
+                <TrendingUp size={32} className="text-[#D4AF37] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="font-serif italic text-gray-900 text-lg tracking-wide group-hover:text-[var(--color-primary,#D4AF37)] transition-colors relative z-10">Trending<br /><span className="text-gray-500 font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">Categories</span></h3>
+              <h3 className="font-serif italic text-[#050505] text-lg tracking-wide transition-all relative z-10 font-bold">Trending<br /><span className="text-[#050505] font-sans font-medium not-italic text-[10px] uppercase tracking-[0.2em] mt-1 block">Categories</span></h3>
             </Link>
           </motion.div>
 
           {/* Trending Products */}
           <motion.div variants={itemVariants}>
-            <Link to="/exclusive-offers" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-black/5 hover:border-[var(--color-primary,#D4AF37)]/50 transition-all active:scale-[0.98] group overflow-hidden relative">
-              <span className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[inset_0_0_25px_rgba(212,175,55,0.3)] relative z-10 bg-[var(--color-btn,#111111)] border border-[var(--color-card,#1a1a1a)]">
-                <ShoppingBag size={32} className="text-[var(--color-primary,#D4AF37)] group-hover:scale-110 transition-transform duration-300" />
+            <Link to="/exclusive-offers" onClick={() => playGoldSound()} className="bg-white rounded-3xl shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] p-6 flex flex-col items-center justify-center text-center aspect-square border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all active:scale-[0.98] group overflow-hidden relative">
+              <span className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] relative z-10 bg-[#050505] border border-[#D4AF37]/20">
+                <ShoppingBag size={32} className="text-[#D4AF37] group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="font-serif italic text-gray-900 text-lg tracking-wide group-hover:text-[var(--color-primary,#D4AF37)] transition-colors relative z-10">Exclusive<br />
-                <span className="text-gray-500 font-sans font-light not-italic text-sm uppercase tracking-widest mt-1 block">Offers</span></h3>
+              <h3 className="font-serif italic text-[#050505] text-lg tracking-wide transition-all relative z-10 font-bold">Exclusive<br />
+                <span className="text-[#050505] font-sans font-medium not-italic text-[10px] uppercase tracking-[0.2em] mt-1 block">Offers</span></h3>
             </Link>
           </motion.div>
 

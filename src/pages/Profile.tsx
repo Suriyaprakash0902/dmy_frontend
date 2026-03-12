@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Heart, ChevronRight, ShieldCheck, Box, TrendingUp, X, Mail, Phone, Calendar, Palette } from "lucide-react";
+import { User, LogOut, Heart, ChevronRight, ShieldCheck, Box, TrendingUp, X, Mail, Phone, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import httpService from "../services/httpService";
@@ -62,7 +62,7 @@ export default function Profile() {
 
     const menuItems = [
         { icon: User, label: "My Profile" },
-        { icon: Palette, label: "Theme Settings", action: () => { playGoldSound(); navigate('/theme-settings'); } }
+        // { icon: Palette, label: "Theme Settings", action: () => { playGoldSound(); navigate('/theme-settings'); } }
     ];
 
     const containerVariants = {
@@ -114,7 +114,7 @@ export default function Profile() {
                     {user?.createdAt ? `Granted Access ${new Date(user.createdAt).getFullYear()}` : "Access Granted 2026"}
                 </p>
 
-                <div className="flex items-center gap-2 bg-[#111] border border-[rgba(212,175,55,0.3)] px-4 py-2 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                <div className="flex items-center gap-2 bg-[#111111] border border-[rgba(212,175,55,0.3)] px-4 py-2 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.1)]">
                     <ShieldCheck size={14} className="text-[#D4AF37]" />
                     <span className="text-[#D4AF37] font-inter text-[10px] font-bold tracking-[0.2em] uppercase">Elite Tier</span>
                 </div>
@@ -128,16 +128,16 @@ export default function Profile() {
                             <TrendingUp size={14} className="text-[#D4AF37]" />
                             Market Rate History
                         </h2>
-                        <span className="text-[10px] bg-[#111] border border-white/10 px-2 py-1 rounded-full text-[#888]">30 Days</span>
+                        <span className="text-[10px] bg-[#1A1A1A] border border-[#333333] px-2 py-1 rounded-full text-[#888]">30 Days</span>
                     </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-[#0A0A0A] p-5 rounded-3xl border border-white/5 shadow-2xl relative w-full overflow-hidden"
+                        className="bg-[#111111] p-5 rounded-3xl border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative w-full overflow-hidden"
                     >
-                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
                         <h3 className="text-white font-serif italic mb-6 text-sm flex justify-between">
                             Gold Bullion (S$/g)
                             <div className="flex gap-3 items-center">
@@ -162,7 +162,7 @@ export default function Profile() {
                                     <XAxis dataKey="date" stroke="#444" fontSize={9} tickLine={false} axisLine={false} tickMargin={10} minTickGap={20} />
                                     <YAxis stroke="#444" fontSize={9} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} domain={['auto', 'auto']} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#111', borderColor: 'rgba(212,175,55,0.3)', borderRadius: '12px', fontSize: '12px', color: '#fff' }}
+                                        contentStyle={{ backgroundColor: '#111111', borderColor: 'rgba(212,175,55,0.3)', borderRadius: '12px', fontSize: '12px', color: '#fff' }}
                                         itemStyle={{ color: '#D4AF37', fontWeight: 'bold' }}
                                     />
                                     <Area type="monotone" dataKey="rate24k" name="24K Rate" stroke="#FFF5D1" strokeWidth={2} fillOpacity={1} fill="url(#color24k)" />
@@ -181,17 +181,17 @@ export default function Profile() {
                         <Heart size={14} className="text-[#D4AF37]" />
                         Acquisition History
                     </h2>
-                    <span className="text-[10px] bg-[#111] border border-white/10 px-2 py-1 rounded-full text-[#888]">{enquiries.length} Requests</span>
+                    <span className="text-[10px] bg-[#1A1A1A] border border-[#333333] px-2 py-1 rounded-full text-[#888]">{enquiries.length} Requests</span>
                 </motion.div>
 
                 {enquiries.length > 0 ? (
                     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3 w-full max-w-[100vw] overflow-hidden">
                         {enquiries.map((enquiry, index) => (
-                            <motion.div key={enquiry.id || index} variants={itemVariants} className="bg-gradient-to-r from-[#111] to-[#0A0A0A] p-4 rounded-3xl border border-white/5 shadow-lg relative overflow-hidden group">
-                                <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#D4AF37] to-transparent rounded-l-3xl opacity-50" />
+                            <motion.div key={enquiry.id || index} variants={itemVariants} className="bg-[#111111] p-4 rounded-3xl border border-[#D4AF37]/30 shadow-[0_0_30px_rgba(212,175,55,0.1)] relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] opacity-50" />
                                 <div className="flex items-start justify-between gap-2 overflow-hidden">
                                     <div className="flex items-start gap-4 flex-1 min-w-0">
-                                        <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#111] transition-colors">
+                                        <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#111111] transition-colors">
                                             <Box size={20} className="text-[#D4AF37]/70" />
                                         </div>
                                         <div className="flex flex-col flex-1 min-w-0">
@@ -211,7 +211,7 @@ export default function Profile() {
                                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
                                         <span className={`text-[9px] font-sans font-bold uppercase tracking-widest px-2 py-1 rounded-md mt-1 ${enquiry.status === 'PENDING' ? 'text-[#D4AF37] bg-black border border-[#D4AF37]/30' :
                                             enquiry.status === 'COMPLETED' ? 'text-green-500 bg-green-500/10 border border-green-500/30' :
-                                                'text-[#888] bg-[#111] border border-white/10'
+                                                'text-[#888] bg-[#1A1A1A] border border-[#333333]'
                                             }`}>
                                             {enquiry.status || 'PENDING'}
                                         </span>
@@ -224,9 +224,10 @@ export default function Profile() {
                         ))}
                     </motion.div>
                 ) : (
-                    <div className="bg-[#0A0A0A] p-6 rounded-3xl border border-white/5 text-center flex flex-col items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center mb-3">
-                            <Heart size={20} className="text-[#444]" />
+                    <div className="bg-[#111111] p-6 rounded-3xl border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] text-center flex flex-col items-center justify-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                        <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center mb-3">
+                            <Heart size={20} className="text-[#A3A3A3]" />
                         </div>
                         <p className="text-[#888] text-xs font-sans uppercase tracking-[0.2em]">No Active Requests</p>
                     </div>
@@ -245,11 +246,11 @@ export default function Profile() {
                 <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3">
                     {menuItems.map((item, index) => (
                         <motion.div key={index} variants={itemVariants}>
-                            <button onClick={() => { playGoldSound(); if (item.action) { item.action(); } else if (item.label === 'My Profile') { setShowProfileModal(true); } }} className="w-full bg-[#0B0B0B] p-4 rounded-2xl shadow-lg border border-white/5 flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[rgba(212,175,55,0.3)] hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] relative overflow-hidden">
-                                <span className="absolute inset-0 bg-gradient-to-r from-[rgba(212,175,55,0.05)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <button onClick={() => { if (item.label === 'My Profile') { setShowProfileModal(true); } }} className="w-full bg-[#111111] p-4 rounded-2xl shadow-[0_0_15px_rgba(212,175,55,0.05)] hover:shadow-[0_0_25px_rgba(212,175,55,0.1)] border border-[#333333] flex items-center justify-between active:scale-[0.98] transition-all group hover:border-[#D4AF37]/50 relative overflow-hidden">
+                                <span className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
                                 <div className="flex items-center gap-4 relative z-10">
-                                    <div className="w-10 h-10 rounded-full bg-[#111] border border-white/5 flex items-center justify-center group-hover:border-[#D4AF37]/50 transition-colors shadow-inner">
-                                        <item.icon size={18} className="text-[#888] group-hover:text-[#D4AF37] transition-colors" />
+                                    <div className="w-10 h-10 rounded-full bg-[#1A1A1A] border border-[#333333] flex items-center justify-center group-hover:border-[#D4AF37]/50 transition-colors shadow-inner">
+                                        <item.icon size={18} className="text-[#A3A3A3] group-hover:text-[#D4AF37] transition-colors" />
                                     </div>
                                     <span className="font-sans font-bold text-sm tracking-widest text-[#CCC] group-hover:text-white uppercase transition-colors">{item.label}</span>
                                 </div>
@@ -267,7 +268,7 @@ export default function Profile() {
             >
                 <button
                     onClick={handleLogout}
-                    className="w-full bg-[#111] p-4 rounded-xl border border-white/10 flex items-center justify-center gap-2 text-[#888] active:scale-[0.98] transition-all shadow-md hover:text-white hover:bg-[#1A1A1A] hover:border-white/20"
+                    className="w-full bg-[#111111] p-4 rounded-xl border border-[#333333] flex items-center justify-center gap-2 text-[#888] active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(212,175,55,0.05)] hover:text-white hover:bg-[#1A1A1A] hover:border-[#D4AF37]/50"
                 >
                     <LogOut size={18} />
                     <span className="font-sans font-bold text-xs tracking-widest uppercase">Logout</span>
@@ -295,10 +296,10 @@ export default function Profile() {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.2)] rounded-2xl w-full max-w-sm flex flex-col shadow-2xl relative overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                         >
-                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
-                            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#111]">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] z-10" />
+                            <div className="p-5 border-b border-[#333333] flex justify-between items-center bg-[#1A1A1A] relative z-20">
                                 <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Identity Verification</h2>
                                 <button onClick={() => setShowProfileModal(false)} className="text-gray-500 hover:text-white transition-colors">
                                     <X size={20} />
@@ -314,25 +315,25 @@ export default function Profile() {
                             </div>
 
                             <div className="px-6 pb-6 space-y-4">
-                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
-                                    <Mail size={18} className="text-[#888]" />
+                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                    <Mail size={18} className="text-[#A3A3A3]" />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Email</p>
-                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.email || 'N/A'}</p>
+                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Email</p>
+                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.email || 'N/A'}</p>
                                     </div>
                                 </div>
-                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
-                                    <Phone size={18} className="text-[#888]" />
+                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                    <Phone size={18} className="text-[#A3A3A3]" />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Phone</p>
-                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.phone || 'N/A'}</p>
+                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Phone</p>
+                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.phone || 'N/A'}</p>
                                     </div>
                                 </div>
-                                <div className="bg-[#111] p-4 rounded-xl border border-white/5 flex items-center gap-4">
-                                    <Calendar size={18} className="text-[#888]" />
+                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                    <Calendar size={18} className="text-[#A3A3A3]" />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#666] tracking-widest uppercase mb-1">Access Granted</p>
-                                        <p className="text-[#CCC] text-sm truncate font-sans">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Access Granted</p>
+                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>

@@ -14,10 +14,11 @@ interface Bullion {
 }
 
 export default function GoldBars() {
-    const [karat, setKarat] = useState<'22' | '24'>('24');
+    const [karat, setKarat] = useState<'22' | '24'>('22');
     const [dynamicRate22k, setDynamicRate22k] = useState<number>(0);
     const [dynamicRate24k, setDynamicRate24k] = useState<number>(0);
     const [bullions, setBullions] = useState<Bullion[]>([]);
+    const [goldPricing, setGoldPricing] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -38,11 +39,21 @@ export default function GoldBars() {
                 const response = await fetch(`${import.meta.env.VITE_LIVE_API_URL}/get_bullion_gallery`);
                 const data = await response.json();
                 if (data.status) {
-                    // Filter or use directly
                     setBullions(data.data);
                 }
+
+                // Fetch gold pricing (gst & workmanship)
+                try {
+                    const priceRes = await fetch(`${import.meta.env.VITE_LIVE_API_URL}/get_gold_price`);
+                    const priceData = await priceRes.json();
+                    if (priceData.status) {
+                        setGoldPricing(priceData.data);
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch gold pricing:", e);
+                }
             } catch (error) {
-                console.error("Failed to fetch bullion gallery:", error);
+                console.error("Failed to fetch bullion data:", error);
             } finally {
                 setLoading(false);
             }
@@ -72,6 +83,10 @@ export default function GoldBars() {
     const [enquiryStatus, setEnquiryStatus] = useState<Record<string, string>>({});
     const [confirmModal, setConfirmModal] = useState<Bullion | null>(null);
 
+    const currentPricing = goldPricing.find(p => p.cat_name && p.cat_name.includes(karat === '22' ? '22 KARAT' : '24 KARAT')) || { gst: "0", workmanship: "0" };
+    const gstPercent = parseFloat(currentPricing.gst) || 0;
+    const workmanshipPerPiece = parseFloat(currentPricing.workmanship) || 0;
+
     const handleQuantity = (id: string, delta: number) => {
         playGoldSound();
         setQuantities(prev => {
@@ -95,13 +110,19 @@ export default function GoldBars() {
 
         const qty = quantities[product.id] || 1;
         const weight = parseWeight(product.bullion_quantity);
-        const totalPrice = qty * weight * ratePerGram;
+        const baseValue = qty * weight * ratePerGram;
+        const totalWorkmanship = qty * workmanshipPerPiece;
+        const gstAmount = (baseValue + totalWorkmanship) * (gstPercent / 100);
+        const totalPrice = baseValue + totalWorkmanship + gstAmount;
 
         try {
             setEnquiryStatus(prev => ({ ...prev, [product.id]: 'loading' }));
             await httpService.post('/api/enquiry', {
                 item: `${product.bullion_name} - ${product.bullion_quantity} (${karat}K)`,
                 quantity: qty,
+                baseValue: baseValue,
+                workmanship: totalWorkmanship,
+                gstAmount: gstAmount,
                 totalPrice: totalPrice
             });
 
@@ -177,13 +198,14 @@ export default function GoldBars() {
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] border border-[rgba(212,175,55,0.15)] rounded-2xl p-4 mb-10 flex items-center justify-between relative z-10 shadow-2xl"
+                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl p-5 mb-10 flex items-center justify-between shadow-[0_0_30px_rgba(212,175,55,0.15)] relative overflow-hidden"
             >
-                <div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                <div className="relative z-10">
                     <span className="text-[10px] text-[#A3A3A3] font-inter uppercase tracking-[0.2em] block mb-1">Current Indicative Rate</span>
                     <h2 className="text-xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] to-[#D4AF37]">S$ {ratePerGram.toFixed(2)} /g</h2>
                 </div>
-                <ShieldCheck size={32} className="text-[#D4AF37]/50 drop-shadow-[0_0_10px_rgba(212,175,55,0.2)]" />
+                <ShieldCheck size={32} className="text-[#D4AF37]/70 drop-shadow-[0_0_10px_rgba(212,175,55,0.3)] relative z-10" />
             </motion.div>
 
             {loading ? (
@@ -200,16 +222,22 @@ export default function GoldBars() {
                     }).map((p) => {
                         const qty = quantities[p.id] || 1;
                         const weight = parseWeight(p.bullion_quantity);
-                        const price = weight * ratePerGram;
+                        const baseVal = weight * ratePerGram;
+                        const itemWorkmanship = workmanshipPerPiece;
+                        const itemGst = (baseVal + itemWorkmanship) * (gstPercent / 100);
+                        const itemPriceTotal = baseVal + itemWorkmanship + itemGst;
+
+                        const estimatedValString = itemPriceTotal > 0 ? `S$ ${(itemPriceTotal * qty).toFixed(2)}` : 'N/A';
                         const status = enquiryStatus[p.id];
 
                         const isCoin = karat === '22';
 
                         return (
-                            <motion.div variants={itemVariants} key={p.id} className="bg-[#0B0B0B] rounded-[24px] shadow-2xl p-4 flex flex-col items-center relative mt-8 border border-white/5 hover:border-[#D4AF37]/30 transition-colors group">
+                            <motion.div variants={itemVariants} key={p.id} className="bg-[#111111] rounded-[24px] shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] p-4 flex flex-col items-center relative mt-8 border border-[#D4AF37]/30 transition-all group overflow-visible">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-50 group-hover:opacity-100 transition-opacity rounded-t-[24px]" />
 
                                 {/* Visual Representation (Floating Coin/Bar) instead of API image */}
-                                <div className="absolute -top-10 flex flex-col items-center justify-center filter drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)] group-hover:-translate-y-2 transition-transform duration-300">
+                                <div className="absolute -top-10 flex flex-col items-center justify-center filter drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)] group-hover:-translate-y-2 transition-transform duration-300 z-10">
                                     <motion.div
                                         animate={{ rotateY: [0, 10, -10, 0] }}
                                         transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
@@ -236,13 +264,13 @@ export default function GoldBars() {
                                     <h3 className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D1] to-[#D4AF37] text-lg mb-1">{p.bullion_name}</h3>
                                     <p className="text-[#888] text-[10px] font-sans uppercase tracking-[0.2em] mb-4">{p.bullion_quantity} • {karat}K</p>
 
-                                    <div className="bg-[#111] border border-[rgba(212,175,55,0.1)] rounded-xl py-2 mb-4">
-                                        <span className="text-[9px] uppercase tracking-widest text-[#666] block mb-0.5">Estimated Value</span>
-                                        <p className="text-white font-sans font-bold text-sm tracking-wider">S$ {(price * qty).toFixed(2)}</p>
+                                    <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl py-2 mb-4 relative z-10">
+                                        <span className="text-[9px] uppercase tracking-widest text-[#A3A3A3] block mb-0.5">Estimated Total Value</span>
+                                        <p className="text-[#D4AF37] font-sans font-bold text-sm tracking-wider">{estimatedValString}</p>
                                     </div>
 
                                     {/* Quantity Selector */}
-                                    <div className="flex items-center justify-between bg-[#151515] border border-white/5 rounded-xl p-1 mb-4">
+                                    <div className="flex items-center justify-between bg-[#1A1A1A] border border-[#333333] rounded-xl p-1 mb-4 relative z-10">
                                         <button onClick={() => handleQuantity(p.id, -1)} className="p-2 rounded-lg text-[#888] hover:text-[#D4AF37] hover:bg-[#222] transition-colors focus:outline-none focus:ring-1 focus:ring-[#D4AF37]">
                                             <Minus size={14} />
                                         </button>
@@ -254,14 +282,14 @@ export default function GoldBars() {
 
                                     {/* Enquire Button */}
                                     {status === 'success' ? (
-                                        <button disabled className="bg-[#D4AF37] text-black text-[10px] uppercase tracking-widest px-2 py-3.5 rounded-xl font-bold w-full shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center justify-center gap-1">
+                                        <button disabled className="bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] text-[10px] uppercase tracking-widest px-2 py-3.5 rounded-xl font-bold w-full shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center justify-center gap-1 relative z-10">
                                             <Check size={14} /> Registered
                                         </button>
                                     ) : (
                                         <button
                                             onClick={() => triggerEnquire(p)}
                                             disabled={status === 'loading'}
-                                            className="bg-transparent border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] uppercase tracking-widest px-2 py-3.5 rounded-xl font-bold hover:bg-[#D4AF37] hover:text-black transition-all w-full focus:outline-none disabled:opacity-50"
+                                            className="relative z-10 bg-transparent border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] uppercase tracking-widest px-2 py-3.5 rounded-xl font-bold hover:bg-[#D4AF37] hover:text-black transition-all w-full focus:outline-none disabled:opacity-50"
                                         >
                                             {status === 'loading' ? 'Processing...' : 'Enquiry'}
                                         </button>
@@ -283,37 +311,66 @@ export default function GoldBars() {
                         className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
                     >
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-[#0B0B0B] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl relative overflow-hidden"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl max-w-sm w-full p-8 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                         >
-                            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
-                            <h2 className="text-xl font-serif text-[#D4AF37] mb-4 text-center">Confirm Acquisition</h2>
-                            <p className="text-[#A3A3A3] font-sans text-sm mb-4 text-center leading-relaxed">
+                            <h2 className="text-2xl font-playfair font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] to-[#D4AF37] mb-4 text-center">
+                                Confirm Acquisition
+                            </h2>
+                            <p className="text-[#A3A3A3] text-sm mb-6 text-center leading-relaxed">
                                 Proceed with securing interest for <strong className="text-white">{(quantities[confirmModal.id] || 1)}x {confirmModal.bullion_name} - {confirmModal.bullion_quantity} ({karat}K)</strong>?
                             </p>
 
-                            <div className="bg-[#111] border border-[rgba(212,175,55,0.1)] rounded-xl py-3 px-4 mb-3 flex justify-between items-center text-center">
-                                <span className="text-[10px] uppercase tracking-widest text-[#666] block">Total Estimated Value</span>
-                                <span className="text-[#D4AF37] font-sans font-bold tracking-wider">S$ {((quantities[confirmModal.id] || 1) * parseWeight(confirmModal.bullion_quantity) * ratePerGram).toFixed(2)}</span>
+                            <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl py-3 px-4 mb-4 flex flex-col gap-2">
+                                {(() => {
+                                    const mQty = quantities[confirmModal.id] || 1;
+                                    const mWeight = parseWeight(confirmModal.bullion_quantity);
+                                    const mBase = mQty * mWeight * ratePerGram;
+                                    const mWM = mQty * workmanshipPerPiece;
+                                    const mGST = (mBase + mWM) * (gstPercent / 100);
+                                    const mTotal = mBase + mWM + mGST;
+
+                                    return (
+                                        <>
+                                            <div className="flex justify-between items-center text-[10px] text-[#A3A3A3] border-b border-white/5 pb-1">
+                                                <span className="uppercase tracking-widest">Base Gold Value</span>
+                                                <span className="font-sans">S$ {mBase.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[10px] text-[#A3A3A3] border-b border-white/5 pb-1">
+                                                <span className="uppercase tracking-widest">Workmanship</span>
+                                                <span className="font-sans">S$ {mWM.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[10px] text-[#A3A3A3] border-b border-white/5 pb-1">
+                                                <span className="uppercase tracking-widest">GST ({gstPercent}%)</span>
+                                                <span className="font-sans">S$ {mGST.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center pt-1">
+                                                <span className="text-[10px] uppercase tracking-widest text-[#D4AF37]">Total Est. Value</span>
+                                                <span className="text-[#D4AF37] font-sans font-bold tracking-wider">S$ {mTotal.toFixed(2)}</span>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
 
-                            <p className="text-[#A3A3A3] font-sans text-[10px] mb-6 text-center italic bg-white/5 p-2 rounded-lg border border-white/10">
-                                <b>Note:</b> The estimated value shown is for indication only. The final billable amount will be based on the exact base gold rate fixed at the time of final confirmation or collection, which may differ.
+                            <p className="text-[#A3A3A3] text-[10px] mb-8 text-center bg-[#1A1A1A] p-3 rounded-lg border border-[#333333]">
+                                <b>Note:</b> The estimated value shown is for indication only. The final billable amount will be based on the exact base gold rate fixed at the time of final confirmation or collection.
                             </p>
 
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col space-y-3">
                                 <button
                                     onClick={handleEnquire}
-                                    className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-[0.98] transition-transform"
+                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold text-sm uppercase tracking-wider hover:opacity-90 transition-opacity flex justify-center items-center"
                                 >
                                     Confirm Interest
                                 </button>
                                 <button
                                     onClick={() => { playGoldSound(); setConfirmModal(null); }}
-                                    className="w-full py-3 bg-transparent text-[#666] font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
+                                    className="w-full py-3 rounded-xl bg-[#1A1A1A] border border-[#333333] text-[#A3A3A3] font-medium text-sm hover:bg-[#222222] transition-colors"
                                 >
                                     Cancel
                                 </button>

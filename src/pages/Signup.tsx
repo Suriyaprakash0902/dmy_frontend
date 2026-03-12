@@ -174,8 +174,8 @@ export default function Signup() {
                         <p className="text-[#888] text-xs tracking-widest uppercase font-light">Create your account</p>
                     </div>
 
-                    <div className="bg-[#0B0B0B] border border-white/5 shadow-2xl rounded-3xl p-6 space-y-6 relative overflow-hidden">
-                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.3)] to-transparent" />
+                    <div className="bg-[#111111] border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] rounded-3xl p-6 space-y-6 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
                         {/* Name */}
                         <div>
@@ -185,14 +185,14 @@ export default function Signup() {
                                 value={form.name}
                                 onChange={(e) => update('name', e.target.value)}
                                 placeholder="Legal Name"
-                                className={`w-full bg-[#151515] border ${errors.name ? 'border-red-900' : 'border-white/5'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wide`}
+                                className={`w-full bg-[#1A1A1A] border ${errors.name ? 'border-red-900' : 'border-[#333333]'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm tracking-wide`}
                             />
                         </div>
 
                         {/* Verification Selector */}
                         <div>
                             <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-2 block">Verify Identity using</label>
-                            <div className="flex bg-[#111] border border-white/5 rounded-full p-1 shadow-inner">
+                            <div className="flex bg-[#111111] border border-[#333333] rounded-full p-1 shadow-inner">
                                 <button
                                     type="button"
                                     onClick={() => { playGoldSound(); setVerificationMethod('email'); setOtpSent(false); setOtpVerified(false); setErrors({}); }}
@@ -227,14 +227,14 @@ export default function Signup() {
                                         onChange={(e) => { update('email', e.target.value); setOtpSent(false); setOtpVerified(false); }}
                                         disabled={otpVerified}
                                         placeholder="client@vault.com"
-                                        className={`flex-1 bg-[#151515] border ${errors.email ? 'border-red-900' : 'border-white/5'} disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm`}
+                                        className={`flex-1 bg-[#1A1A1A] border ${errors.email ? 'border-red-900' : 'border-[#333333]'} disabled:opacity-50 text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm`}
                                     />
                                     {!otpVerified && (
                                         <button
                                             type="button"
                                             onClick={handleSendOtp}
                                             disabled={isSubmitting || !form.email}
-                                            className="px-4 py-3 bg-[#111] border border-[#D4AF37] text-[#D4AF37] text-[10px] tracking-widest uppercase rounded-xl transition-all hover:bg-[#D4AF37] hover:text-black font-bold whitespace-nowrap"
+                                            className="px-4 py-3 bg-[#111111] border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] tracking-widest uppercase rounded-xl transition-all hover:bg-[#D4AF37] hover:text-[#0A0A0A] font-bold whitespace-nowrap"
                                         >
                                             {otpSent ? 'Resend' : 'Send Code'}
                                         </button>
@@ -249,8 +249,8 @@ export default function Signup() {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                 <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">WhatsApp Number</label>
                                 <div className="flex gap-2">
-                                    <div className={`flex flex-1 bg-[#151515] border ${errors.phone ? 'border-red-900' : 'border-white/5'} rounded-xl disabled:opacity-50 overflow-hidden focus-within:border-[#D4AF37] transition-colors`}>
-                                        <span className="flex items-center justify-center px-3 bg-[#111] border-r border-white/5 text-[#D4AF37] font-bold text-sm">
+                                    <div className={`flex flex-1 bg-[#1A1A1A] border ${errors.phone ? 'border-red-900' : 'border-[#333333]'} rounded-xl disabled:opacity-50 overflow-hidden focus-within:border-[#D4AF37] transition-colors`}>
+                                        <span className="flex items-center justify-center px-3 bg-[#111111] border-r border-[#333333] text-[#D4AF37] font-bold text-sm">
                                             +65
                                         </span>
                                         <input
@@ -267,7 +267,7 @@ export default function Signup() {
                                             type="button"
                                             onClick={handleSendOtp}
                                             disabled={isSubmitting || !form.phone}
-                                            className="px-4 py-3 bg-[#111] border border-white/5 text-[#D4AF37] text-[10px] tracking-widest uppercase rounded-xl transition-all hover:bg-[#D4AF37] hover:text-black font-bold whitespace-nowrap"
+                                            className="px-4 py-3 bg-[#111111] border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] tracking-widest uppercase rounded-xl transition-all hover:bg-[#D4AF37] hover:text-[#0A0A0A] font-bold whitespace-nowrap"
                                         >
                                             {otpSent ? 'Resend' : 'Send Code'}
                                         </button>
@@ -289,13 +289,13 @@ export default function Signup() {
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                                         placeholder="••••"
-                                        className="w-full bg-[#151515] border border-[#D4AF37]/50 text-[#D4AF37] tracking-[1em] text-center rounded-xl px-4 py-4 focus:outline-none focus:border-[#D4AF37] font-sans text-xl"
+                                        className="w-full bg-[#1A1A1A] border border-[#D4AF37]/50 text-white tracking-[1em] text-center rounded-xl px-4 py-4 focus:outline-none focus:border-[#D4AF37] font-sans text-xl"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleVerifyOtp}
                                         disabled={isSubmitting}
-                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-transform active:scale-[0.98]"
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all active:scale-[0.98] hover:opacity-90"
                                     >
                                         Verify Code
                                     </button>
@@ -307,8 +307,8 @@ export default function Signup() {
                         {verificationMethod === 'email' && (
                             <div>
                                 <label className="text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5 block">Phone Number</label>
-                                <div className={`flex bg-[#151515] border ${errors.phone ? 'border-red-900' : 'border-white/5'} rounded-xl overflow-hidden focus-within:border-[#D4AF37] transition-colors`}>
-                                    <span className="flex items-center justify-center px-3 bg-[#111] border-r border-white/5 text-[#D4AF37] font-bold text-sm">
+                                <div className={`flex bg-[#1A1A1A] border ${errors.phone ? 'border-red-900' : 'border-[#333333]'} rounded-xl overflow-hidden focus-within:border-[#D4AF37] transition-colors`}>
+                                    <span className="flex items-center justify-center px-3 bg-[#111111] border-r border-[#333333] text-[#D4AF37] font-bold text-sm">
                                         +65
                                     </span>
                                     <input
@@ -332,7 +332,7 @@ export default function Signup() {
                                         value={form.email}
                                         onChange={(e) => update('email', e.target.value)}
                                         placeholder="client@vault.com"
-                                        className={`flex-1 bg-[#151515] border ${errors.email ? 'border-red-900' : 'border-white/5'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm`}
+                                        className={`flex-1 bg-[#1A1A1A] border ${errors.email ? 'border-red-900' : 'border-[#333333]'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm`}
                                     />
                                 </div>
                                 {errors.email && <p className="text-red-500 text-[10px] mt-1 uppercase tracking-wider">{errors.email}</p>}
@@ -348,7 +348,7 @@ export default function Signup() {
                                     value={form.dob}
                                     max={new Date().toISOString().split('T')[0]}
                                     onChange={(e) => update('dob', e.target.value)}
-                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
+                                    className="w-full bg-[#1A1A1A] border border-[#333333] text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
                                 />
                             </div>
                             <div>
@@ -356,12 +356,12 @@ export default function Signup() {
                                 <select
                                     value={form.gender}
                                     onChange={(e) => update('gender', e.target.value)}
-                                    className="w-full bg-[#151515] border border-white/5 text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
+                                    className="w-full bg-[#1A1A1A] border border-[#333333] text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none"
                                 >
-                                    <option value="" className="bg-[#111]">Select</option>
-                                    <option value="male" className="bg-[#111]">Male</option>
-                                    <option value="female" className="bg-[#111]">Female</option>
-                                    <option value="other" className="bg-[#111]">Other</option>
+                                    <option value="" className="bg-[#111111]">Select</option>
+                                    <option value="male" className="bg-[#111111]">Male</option>
+                                    <option value="female" className="bg-[#111111]">Female</option>
+                                    <option value="other" className="bg-[#111111]">Other</option>
                                 </select>
                             </div>
                         </div>
@@ -382,7 +382,7 @@ export default function Signup() {
                                     value={form.password}
                                     onChange={(e) => update('password', e.target.value)}
                                     placeholder="••••••••"
-                                    className={`w-full bg-[#151515] border ${form.password && form.password.length < 8 ? 'border-red-900' : form.password.length >= 8 ? 'border-green-900/50' : 'border-white/5'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans`}
+                                    className={`w-full bg-[#1A1A1A] border ${form.password && form.password.length < 8 ? 'border-red-900' : form.password.length >= 8 ? 'border-[#333333]' : 'border-[#333333]'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans`}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 bottom-3.5 text-[#666] hover:text-[#D4AF37]">
                                     {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
@@ -402,7 +402,7 @@ export default function Signup() {
                                     value={form.confirmPassword}
                                     onChange={(e) => update('confirmPassword', e.target.value)}
                                     placeholder="••••••••"
-                                    className={`w-full bg-[#151515] border ${form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-900' : form.confirmPassword && form.password === form.confirmPassword && form.password.length >= 8 ? 'border-green-900/50' : 'border-white/5'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans`}
+                                    className={`w-full bg-[#1A1A1A] border ${form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-900' : form.confirmPassword && form.password === form.confirmPassword && form.password.length >= 8 ? 'border-[#333333]' : 'border-[#333333]'} text-[#D4AF37] placeholder-[#444] rounded-xl px-4 py-3 tracking-widest focus:outline-none focus:border-[#D4AF37] transition-colors font-sans`}
                                 />
                                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 bottom-3.5 text-[#666] hover:text-[#D4AF37]">
                                     {showConfirmPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
@@ -426,7 +426,7 @@ export default function Signup() {
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSignup}
                             disabled={isSubmitting}
-                            className={`w-full py-4 mt-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'}`}
+                            className={`w-full py-4 mt-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98] hover:opacity-90'}`}
                         >
                             {isSubmitting ? 'Processing...' : 'Create Account'}
                         </motion.button>
@@ -447,10 +447,10 @@ export default function Signup() {
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ y: 20, opacity: 0, scale: 0.95 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.2)] rounded-3xl w-full max-w-sm flex flex-col shadow-2xl relative overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-3xl w-full max-w-sm flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                         >
-                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
-                            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#111]">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] z-10" />
+                            <div className="p-5 border-b border-[#333333] flex justify-between items-center bg-[#1A1A1A] relative z-20">
                                 <h2 className="text-sm tracking-widest uppercase font-bold text-[#D4AF37]">Terms & Conditions</h2>
                                 <button onClick={() => setShowTermsModal(false)} className="text-[#666] hover:text-[#D4AF37] transition-colors">
                                     <X size={20} />
@@ -465,7 +465,7 @@ export default function Signup() {
                                 </div>
                                 <button
                                     onClick={() => { playGoldSound(); setForm({ ...form, agreeTerms: true }); setShowTermsModal(false); }}
-                                    className="w-full mt-6 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95 transition-all"
+                                    className="w-full mt-6 py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95 transition-all hover:opacity-90"
                                 >
                                     I Approve & Accept
                                 </button>

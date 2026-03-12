@@ -31,27 +31,27 @@ export default function ExclusiveOffers() {
     }, []);
 
     return (
-        <div className="relative min-h-screen bg-[#013D42] text-[#E3B938] overflow-hidden page-transition">
+        <div className="relative min-h-screen bg-[#050505] text-[#D4AF37] overflow-hidden page-transition">
 
             {/* Header */}
-            <div className="absolute top-0 z-50 w-full bg-gradient-to-b from-black/60 to-transparent pt-8 pb-4 px-6 flex items-center justify-between">
+            <div className="absolute top-0 z-50 w-full bg-gradient-to-b from-black/80 to-transparent pt-8 pb-4 px-6 flex items-center justify-between border-b border-white/5">
                 <div className="flex items-center gap-4">
                     <Link to="/home" onClick={() => playGoldSound()}>
-                        <div className="p-2 bg-black/40 backdrop-blur-md rounded-full text-[#E3B938] hover:bg-[#E3B938] hover:text-black transition-all">
+                        <div className="p-2 bg-[#1A1A1A] border border-[#333333] rounded-full text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all">
                             <ArrowLeft size={20} />
                         </div>
                     </Link>
-                    <h1 className="text-xl font-serif text-[#E3B938] tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Exclusive</h1>
+                    <h1 className="text-xl font-serif text-[#D4AF37] tracking-widest uppercase">Exclusive</h1>
                 </div>
             </div>
 
             {/* Background Animations */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-[#013D42] opacity-90" />
+                <div className="absolute inset-0 bg-[#050505]" />
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 150, ease: "linear" }}
-                    className="absolute top-[-30%] left-[-20%] w-[150%] h-[150%] bg-[radial-gradient(circle_at_center,rgba(227,185,56,0.15)_0%,transparent_50%)] pointer-events-none"
+                    className="absolute top-[-30%] left-[-20%] w-[150%] h-[150%] bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.15)_0%,transparent_50%)] pointer-events-none"
                 />
             </div>
 
@@ -64,13 +64,13 @@ export default function ExclusiveOffers() {
                     transition={{ duration: 0.8 }}
                     className="mb-8"
                 >
-                    <h2 className="text-4xl font-serif text-white tracking-widest mb-2 shadow-black drop-shadow-lg">Offers</h2>
-                    <p className="text-sm text-[#E3B938]/80 font-light tracking-widest uppercase">Uncover your hidden treasures</p>
+                    <h2 className="text-4xl font-playfair font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#F0E6D2] to-[#D4AF37] mb-2">Offers</h2>
+                    <p className="text-sm text-[#A3A3A3] font-light tracking-widest uppercase">Uncover your hidden treasures</p>
                 </motion.div>
 
                 {isLoading ? (
                     <div className="flex-1 flex justify-center items-center pb-20">
-                        <div className="w-12 h-12 rounded-full border-2 border-[#E3B938] border-t-transparent animate-spin shadow-[0_0_15px_rgba(227,185,56,0.5)]" />
+                        <div className="w-12 h-12 rounded-full border-2 border-[#D4AF37] border-t-transparent animate-spin shadow-[0_0_15px_rgba(212,175,55,0.5)]" />
                     </div>
                 ) : offers.length > 0 ? (
                     <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10 space-y-8">
@@ -84,11 +84,12 @@ export default function ExclusiveOffers() {
                                 onClick={() => playGoldSound()}
                             >
                                 {/* Ribbon background effect */}
-                                <div className="absolute -inset-1 bg-gradient-to-r from-[#E3B938] via-[#B6942C] to-[#E3B938] rounded-[2rem] opacity-20 blur-sm group-hover:opacity-60 transition-opacity duration-500" />
+                                <div className="absolute -inset-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] rounded-[2rem] opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-500" />
 
-                                <div className="relative p-1.5 bg-gradient-to-br from-[#02444A] to-black rounded-[2rem] overflow-hidden shadow-2xl">
+                                <div className="relative bg-[#111111] border border-[#D4AF37]/30 rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] flex flex-col p-2">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] z-30" />
                                     <div className="aspect-[9/16] sm:aspect-[4/5] w-full rounded-[1.75rem] overflow-hidden relative">
-                                        <div className="absolute inset-0 bg-[#E3B938]/10 animate-pulse" />
+                                        <div className="absolute inset-0 bg-[#D4AF37]/10 animate-pulse" />
                                         <img
                                             src={offer.image}
                                             alt={`Exclusive Offer ${offer.id}`}
@@ -101,8 +102,8 @@ export default function ExclusiveOffers() {
                                         <div className="absolute inset-0 shadow-[inset_0_0_50px_rgba(0,0,0,0.6)] z-20 pointer-events-none" />
 
                                         {/* Fake Premium Ribbon / Tag */}
-                                        <div className="absolute top-6 -right-12 bg-gradient-to-r from-black to-[#E3B938]/80 backdrop-blur-md px-14 py-2 rotate-45 transform shadow-lg z-30">
-                                            <span className="text-white text-[10px] uppercase tracking-[0.2em] font-bold shadow-black drop-shadow-md block -ml-4">Featured</span>
+                                        <div className="absolute top-6 -right-12 bg-gradient-to-r from-[#D4AF37] to-[#8A6D1C] px-14 py-2 rotate-45 transform shadow-[0_0_15px_rgba(212,175,55,0.4)] z-30">
+                                            <span className="text-[#0A0A0A] text-[10px] uppercase tracking-[0.2em] font-bold block -ml-4">Featured</span>
                                         </div>
                                     </div>
                                 </div>
@@ -112,8 +113,8 @@ export default function ExclusiveOffers() {
                 ) : (
                     <div className="flex-1 flex justify-center items-center text-center pb-20 opacity-60">
                         <div>
-                            <p className="text-xl font-serif text-[#E3B938] mb-2">Check back soon</p>
-                            <p className="text-xs uppercase tracking-widest text-[#E3B938]/60">More offers drop later</p>
+                            <p className="text-xl font-serif text-[#D4AF37] mb-2">Check back soon</p>
+                            <p className="text-xs uppercase tracking-widest text-[#D4AF37]/60">More offers drop later</p>
                         </div>
                     </div>
                 )}

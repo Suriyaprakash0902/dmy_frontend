@@ -24,7 +24,7 @@ export default function NotFound() {
             >
                 <div className="relative mb-8">
                     <div className="absolute inset-0 bg-[#D4AF37] blur-[30px] opacity-20 rounded-full" />
-                    <div className="w-24 h-24 rounded-full border border-[rgba(212,175,55,0.3)] bg-gradient-to-br from-[#111] to-[#0A0A0A] shadow-[inset_0_0_20px_rgba(212,175,55,0.1)] flex items-center justify-center relative z-10">
+                    <div className="w-24 h-24 rounded-full border border-[rgba(212,175,55,0.3)] bg-gradient-to-br from-[#111111] to-[#0A0A0A] shadow-[inset_0_0_20px_rgba(212,175,55,0.1)] flex items-center justify-center relative z-10">
                         <AlertTriangle size={40} className="text-[#D4AF37]" strokeWidth={1.5} />
                     </div>
 
@@ -44,7 +44,7 @@ export default function NotFound() {
                 <Link
                     to="/home"
                     onClick={() => playGoldSound()}
-                    className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all active:scale-[0.98]"
+                    className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-all active:scale-[0.98] hover:opacity-90"
                 >
                     <Home size={18} />
                     Return to Home

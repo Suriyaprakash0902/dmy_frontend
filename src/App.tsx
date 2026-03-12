@@ -16,6 +16,7 @@ import ExclusiveOffers from "./pages/ExclusiveOffers";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
 import { Toaster } from 'react-hot-toast';
+import Products from "./pages/Products";
 
 const ProtectedRoute = () => {
   const token = localStorage.getItem('token');
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/invoices" element={<Invoices />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/products" element={<Products />} />
               </Route>
               {/* Accessible standalone from Profile inside vault */}
               <Route path="/theme-settings" element={<ThemeSettings />} />

@@ -194,9 +194,9 @@ export default function Scheme() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full aspect-[1.6] rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-[rgba(212,175,55,0.3)]"
+                        className="relative w-full aspect-[1.6] rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] border border-[#D4AF37]/30 bg-[#111111]"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#1C180E] via-[#0A0A0A] to-[#0A261D]" />
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] z-10" />
                         <motion.div
                             animate={{ x: ["-100%", "200%"] }}
                             transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
@@ -237,15 +237,16 @@ export default function Scheme() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="mt-8 bg-[#0B0B0B] border border-white/5 rounded-2xl p-5 shadow-2xl"
+                        className="mt-8 bg-[#111111] border border-[#D4AF37]/30 rounded-2xl p-5 shadow-[0_0_30px_rgba(212,175,55,0.1)] relative overflow-hidden"
                     >
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-50" />
+                        <div className="flex items-center gap-2 mb-4 relative z-10">
                             <Sparkles size={16} className="text-[#D4AF37]" />
                             <h3 className="text-white font-serif tracking-wide text-lg">Acquire Next Instalment</h3>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 mb-5">
-                            <div className="bg-[#111] border border-white/10 rounded-xl p-3">
+                        <div className="grid grid-cols-2 gap-3 mb-5 relative z-10">
+                            <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl p-3">
                                 <label className="text-[10px] uppercase tracking-widest text-[#888] block mb-1">Month Selected</label>
                                 <select
                                     className="w-full bg-transparent text-[#D4AF37] font-bold outline-none font-serif appearance-none"
@@ -264,7 +265,7 @@ export default function Scheme() {
                                     })}
                                 </select>
                             </div>
-                            <div className="bg-[#111] border border-white/10 rounded-xl p-3 flex flex-col justify-center items-end">
+                            <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl p-3 flex flex-col justify-center items-end">
                                 <label className="text-[10px] uppercase tracking-widest text-[#888] block mb-1">Cost</label>
                                 <span className="text-white font-bold font-sans">S$ {selectedScheme.amount}</span>
                             </div>
@@ -305,9 +306,10 @@ export default function Scheme() {
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5 + Math.min(i * 0.1, 0.5) }}
                                         key={p.id || i}
-                                        className="bg-[#0B0B0B] border border-white/5 rounded-xl p-4 flex justify-between items-center"
+                                        className="bg-[#111111] border border-[#D4AF37]/30 rounded-xl p-4 flex justify-between items-center shadow-[0_0_20px_rgba(212,175,55,0.05)] relative overflow-hidden"
                                     >
-                                        <div>
+                                        <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-[#D4AF37]/50 to-transparent" />
+                                        <div className="pl-2">
                                             <p className="text-white font-bold font-serif mb-1 flex items-center gap-2">
                                                 Month {p.monthIndex}
                                                 <span className={`text-[9px] font-sans px-2 py-0.5 rounded-sm tracking-widest uppercase ${isFailed ? 'bg-[#3A1010] text-[#FF4444]' : 'bg-[#102410] text-[#44FF44]'}`}>
@@ -351,9 +353,9 @@ export default function Scheme() {
                                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                                className="bg-[#0A0A0A] border border-[rgba(212,175,55,0.2)] rounded-2xl w-full max-w-sm p-6 shadow-2xl relative overflow-hidden"
+                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm p-8 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                             >
-                                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50" />
+                                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
                                 <h2 className="text-2xl font-serif text-[#D4AF37] mb-3 text-center">Confirm Authorization</h2>
                                 <p className="text-[#AAA] font-inter text-sm mb-8 text-center leading-relaxed">
@@ -363,13 +365,13 @@ export default function Scheme() {
                                 <div className="flex flex-col gap-3">
                                     <button
                                         onClick={processBuy}
-                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-sm rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-[0.98] transition-transform"
+                                        className="w-full py-4 bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-sm rounded-xl hover:opacity-90 active:scale-[0.98] transition-transform shadow-lg"
                                     >
                                         Authorize Purchase
                                     </button>
                                     <button
                                         onClick={() => setConfirmBuyModal(false)}
-                                        className="w-full py-3 text-[#666] font-bold text-sm tracking-wider uppercase hover:text-white transition-colors"
+                                        className="w-full py-3 bg-[#1A1A1A] border border-[#333333] text-[#A3A3A3] font-bold text-sm tracking-wider uppercase rounded-xl hover:bg-[#222222] transition-colors"
                                     >
                                         Revoke
                                     </button>
@@ -417,13 +419,13 @@ export default function Scheme() {
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: i * 0.1 }}
                                 onClick={() => handleSelectScheme(scheme)}
-                                className="relative w-full aspect-[1.6] rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-[rgba(212,175,55,0.3)] cursor-pointer group hover:border-[#D4AF37]/70 transition-all"
+                                className="relative w-full aspect-[1.6] rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_0_40px_rgba(212,175,55,0.1)] border border-[#D4AF37]/30 bg-[#111111] cursor-pointer group hover:shadow-[0_0_50px_rgba(212,175,55,0.2)] hover:border-[#D4AF37]/60 transition-all"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#1C180E] via-[#0A0A0A] to-[#0A261D] group-hover:from-[#2A2415] transition-colors duration-500" />
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37]/50 via-[#FFF38E]/50 to-[#D4AF37]/50 opacity-40 group-hover:opacity-100 transition-opacity z-10" />
                                 <motion.div
                                     animate={{ x: ["-100%", "200%"] }}
                                     transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                                    className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.05)] to-transparent skew-x-[-30deg]"
+                                    className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[#D4AF37]/5 to-transparent skew-x-[-30deg]"
                                 />
 
                                 <div className="relative z-10 flex justify-between items-start">
@@ -468,7 +470,7 @@ export default function Scheme() {
                     >
                         <button
                             onClick={handleApplyNow}
-                            className="w-full bg-[#111] text-[#D4AF37] border border-white/10 border-dashed rounded-2xl py-5 flex flex-col items-center justify-center gap-2 hover:bg-[#151515] hover:border-[#D4AF37]/50 transition-all group active:scale-[0.98]"
+                            className="w-full bg-[#111111] text-[#D4AF37] border border-[#333333] border-dashed rounded-2xl py-5 flex flex-col items-center justify-center gap-2 hover:bg-[#1A1A1A] hover:border-[#D4AF37]/50 transition-all group active:scale-[0.98]"
                         >
                             <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Sparkles size={18} />
@@ -492,9 +494,10 @@ export default function Scheme() {
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 50, opacity: 0 }}
                                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                             >
-                                <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#111]">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                                <div className="p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A]">
                                     <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">The Agreement</h2>
                                     <button onClick={() => setShowTerms(false)} className="text-gray-500 hover:text-white transition-colors">
                                         <X size={20} />
@@ -502,20 +505,19 @@ export default function Scheme() {
                                 </div>
 
                                 <div className="p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
-                                    <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus.</p>
-                                    <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
-                                    <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
-                                    <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
-                                    <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
-                                    <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                                    <p>7) Workmanship and other relevant charges will be levied additionally.</p>
-                                    <p>8) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                                    <p>9) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                                    <p>10) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
-                                    <p>11) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
+                                    <p>1) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
+                                    <p>2) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
+                                    <p>3) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                                    <p>4) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                                    <p>5) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                                    <p>6) Workmanship and other relevant charges will be levied additionally.</p>
+                                    <p>7) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                    <p>8) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                    <p>9) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                    <p>10) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                                 </div>
 
-                                <div className="p-5 border-t border-white/10 bg-[#0A0A0A]">
+                                <div className="p-5 border-t border-[#333] bg-[#1A1A1A]">
                                     <label className="flex items-center gap-3 cursor-pointer mb-5">
                                         <input
                                             type="checkbox"
@@ -538,7 +540,7 @@ export default function Scheme() {
                                                 if (agreeChecked) navigate('/scheme/apply');
                                             }}
                                             disabled={!agreeChecked}
-                                            className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl bg-[#D4AF37] text-black font-bold disabled:opacity-30 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:shadow-none"
+                                            className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold disabled:opacity-30 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:shadow-none hover:opacity-90 active:scale-[0.98]"
                                         >
                                             Proceed
                                         </button>
@@ -585,8 +587,9 @@ export default function Scheme() {
                 >
                     <span className="absolute inset-0 bg-gradient-to-br from-[#D4AF37] via-transparent to-[#D4AF37] rounded-2xl opacity-30" />
 
-                    <div className="bg-[#0B0B0B] p-8 rounded-2xl relative z-10 flex flex-col items-center shadow-2xl">
-                        <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#B6942C] rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+                    <div className="bg-[#111111] p-8 rounded-2xl relative z-10 flex flex-col items-center border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#B6942C] rounded-full flex items-center justify-center mb-6 mt-4 shadow-[0_0_30px_rgba(212,175,55,0.4)]">
                             <Sparkles className="text-black" size={28} />
                         </div>
 
@@ -602,7 +605,7 @@ export default function Scheme() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleApplyNow}
-                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B6942C] text-black font-bold uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:opacity-90"
                         >
                             Begin Journey
                         </motion.button>
@@ -623,9 +626,10 @@ export default function Scheme() {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                         >
-                            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#111]">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
+                            <div className="p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A]">
                                 <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">The Agreement</h2>
                                 <button onClick={() => setShowTerms(false)} className="text-gray-500 hover:text-white transition-colors">
                                     <X size={20} />
@@ -633,20 +637,19 @@ export default function Scheme() {
                             </div>
 
                             <div className="p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
-                                <p>1) Members must complete all monthly payments promptly for 12 months as scheduled in the Gold Savings Scheme in order to be eligible for the 13th month bonus.</p>
-                                <p>2) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
-                                <p>3) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
-                                <p>4) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
-                                <p>5) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
-                                <p>6) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
-                                <p>7) Workmanship and other relevant charges will be levied additionally.</p>
-                                <p>8) Goods and Services Tax (GST) will be applicable on all purchases.</p>
-                                <p>9) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
-                                <p>10) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
-                                <p>11) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
+                                <p>1) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
+                                <p>2) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
+                                <p>3) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
+                                <p>4) All monthly payments are only redeemable as gold and/or diamond jewellery. No cash refunds or reimbursements will be made under any circumstances.</p>
+                                <p>5) The gold price, at the time of redemption, would be based on the prevailing gold price at DMY Jewellery on the day of purchase.</p>
+                                <p>6) Workmanship and other relevant charges will be levied additionally.</p>
+                                <p>7) Goods and Services Tax (GST) will be applicable on all purchases.</p>
+                                <p>8) Purchase of Pure Gold Bars and 916 Gold Coins are not permitted under this scheme.</p>
+                                <p>9) Members must produce both their active GSS Page on MyDMY App and photo ID for verification.</p>
+                                <p>10) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                             </div>
 
-                            <div className="p-5 border-t border-white/10 bg-[#0A0A0A]">
+                            <div className="p-5 border-t border-[#333] bg-[#1A1A1A]">
                                 <label className="flex items-center gap-3 cursor-pointer mb-5">
                                     <input
                                         type="checkbox"
@@ -669,7 +672,7 @@ export default function Scheme() {
                                             if (agreeChecked) navigate('/scheme/apply');
                                         }}
                                         disabled={!agreeChecked}
-                                        className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl bg-[#D4AF37] text-black font-bold disabled:opacity-30 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:shadow-none"
+                                        className="flex-1 py-3 text-xs tracking-widest uppercase rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold disabled:opacity-30 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:shadow-none hover:opacity-90 active:scale-[0.98]"
                                     >
                                         Proceed
                                     </button>
