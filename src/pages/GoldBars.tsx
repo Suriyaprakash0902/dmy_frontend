@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
+import PaymentModal from "../components/PaymentModal";
 
 interface Bullion {
     id: string;
@@ -83,6 +85,9 @@ export default function GoldBars() {
     const [enquiryStatus, setEnquiryStatus] = useState<Record<string, string>>({});
     const [confirmModal, setConfirmModal] = useState<Bullion | null>(null);
 
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentParams, setPaymentParams] = useState<any>(null);
+
     const currentPricing = goldPricing.find(p => p.cat_name && p.cat_name.includes(karat === '22' ? '22 KARAT' : '24 KARAT')) || { gst: "0", workmanship: "0" };
     const gstPercent = parseFloat(currentPricing.gst) || 0;
     const workmanshipPerPiece = parseFloat(currentPricing.workmanship) || 0;
@@ -102,19 +107,7 @@ export default function GoldBars() {
         setConfirmModal(product);
     };
 
-    const handleEnquire = async () => {
-        playGoldSound();
-        if (!confirmModal) return;
-        const product = confirmModal;
-        setConfirmModal(null);
-
-        const qty = quantities[product.id] || 1;
-        const weight = parseWeight(product.bullion_quantity);
-        const baseValue = qty * weight * ratePerGram;
-        const totalWorkmanship = qty * workmanshipPerPiece;
-        const gstAmount = (baseValue + totalWorkmanship) * (gstPercent / 100);
-        const totalPrice = baseValue + totalWorkmanship + gstAmount;
-
+    const handleFinalizeEnquiry = async (product: Bullion, qty: number, baseValue: number, totalWorkmanship: number, gstAmount: number, totalPrice: number) => {
         try {
             setEnquiryStatus(prev => ({ ...prev, [product.id]: 'loading' }));
             await httpService.post('/api/enquiry', {
@@ -123,19 +116,44 @@ export default function GoldBars() {
                 baseValue: baseValue,
                 workmanship: totalWorkmanship,
                 gstAmount: gstAmount,
-                totalPrice: totalPrice
+                totalPrice: totalPrice,
+                status: 'ENQUIRY'
+            });
+
+            playGoldSound(true);
+            confetti({
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.5 },
+                colors: ['#FFD700', '#D4AF37', '#FFF8DC']
             });
 
             setEnquiryStatus(prev => ({ ...prev, [product.id]: 'success' }));
-            toast.success('Enquiry Registered', { style: { background: '#0B0B0B', color: '#D4AF37' } });
+            toast.success('Enquiry Submitted Successfully', { style: { background: '#0B0B0B', color: '#D4AF37' } });
             setTimeout(() => {
                 setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
             }, 3000);
         } catch (error) {
             console.error(error);
             setEnquiryStatus(prev => ({ ...prev, [product.id]: '' }));
-            toast.error('Failed to Enquiry');
+            toast.error('Failed to submit enquiry');
         }
+    };
+
+    const handleEnquire = async () => {
+        playGoldSound();
+        if (!confirmModal) return;
+        const product = confirmModal;
+        const qty = quantities[product.id] || 1;
+
+        const weight = parseWeight(product.bullion_quantity);
+        const baseValue = qty * weight * ratePerGram;
+        const totalWorkmanship = qty * workmanshipPerPiece;
+        const gstAmount = (baseValue + totalWorkmanship) * (gstPercent / 100);
+        const totalPrice = baseValue + totalWorkmanship + gstAmount;
+
+        setConfirmModal(null);
+        await handleFinalizeEnquiry(product, qty, baseValue, totalWorkmanship, gstAmount, totalPrice);
     };
 
     const containerVariants = {
@@ -379,6 +397,8 @@ export default function GoldBars() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            
+
         </div>
     );
 }

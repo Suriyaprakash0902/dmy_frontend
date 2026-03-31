@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
+import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
+import PaymentModal from "../components/PaymentModal";
 
 export default function SchemeRegistration() {
     const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function SchemeRegistration() {
     const [agreeTerm, setAgreeTerm] = useState(false);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentParams, setPaymentParams] = useState<any>(null);
 
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -41,14 +45,12 @@ export default function SchemeRegistration() {
         setNric(e.target.value.toUpperCase());
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        playGoldSound();
-        if (!agreeTerm) {
-            toast.error("You must agree to the Scheme Terms to proceed.");
-            return;
-        }
+    const finalizedRef = useRef<boolean>(false);
 
+    const handleFinalizeScheme = async () => {
+        if (finalizedRef.current) return;
+        finalizedRef.current = true;
+        
         setIsSubmitting(true);
         try {
             const payload = {
@@ -57,11 +59,44 @@ export default function SchemeRegistration() {
             };
 
             await httpService.post('/api/schemes/apply', payload);
+            playGoldSound(true);
+            confetti({
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.5 },
+                colors: ['#FFD700', '#D4AF37', '#FFF8DC']
+            });
             toast.success("Scheme Contract Signed Successfully", { style: { background: '#0B0B0B', color: '#D4AF37' } });
             navigate('/scheme');
         } catch (err: any) {
             console.error(err);
             toast.error(err.message || "Failed to finalize contract");
+        }
+        setIsSubmitting(false);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!agreeTerm) {
+            toast.error("You must agree to the Scheme Terms to proceed.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            // Initiate Airwallex Payment Intent
+            const intentResponse: any = await httpService.post('/api/payment/create-intent', { amount: Number(amount) });
+            const paymentData = intentResponse.data || intentResponse;
+
+            if (paymentData && paymentData.client_secret) {
+                setPaymentParams(paymentData);
+                setShowPaymentModal(true);
+            } else {
+                toast.error("Failed to initialize payment gateway");
+            }
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err.message || "Failed to initialize payment");
         }
         setIsSubmitting(false);
     };
@@ -231,25 +266,25 @@ export default function SchemeRegistration() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
-                            <div className="p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A]">
+                            <div className="p-4 sm:p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A] shrink-0 z-10">
                                 <h2 className="text-sm tracking-widest uppercase font-bold text-[#D4AF37]">Scheme Charter</h2>
                                 <button onClick={() => setShowTerms(false)} className="text-[#666] hover:text-[#D4AF37] transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
 
-                            <div className="p-5 overflow-y-auto font-sans text-xs text-[#888] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
+                            <div className="p-4 sm:p-5 overflow-y-auto font-sans text-xs text-[#888] space-y-4 flex-grow leading-relaxed custom-scrollbar">
                                 <p className="font-bold text-[#D4AF37] uppercase tracking-wider mb-2">Notice of Agreement</p>
                                 <p>1) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
                                 <p>2) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
@@ -263,7 +298,7 @@ export default function SchemeRegistration() {
                                 <p>10) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                             </div>
 
-                            <div className="p-5 border-t border-[#333] bg-[#1A1A1A]">
+                            <div className="p-4 sm:p-5 border-t border-[#333] bg-[#1A1A1A] shrink-0 z-10 w-full">
                                 <button
                                     onClick={() => { playGoldSound(); setAgreeTerm(true); setShowTerms(false); }}
                                     className="w-full py-4 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C9A84C] text-[#0A0A0A] font-bold uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-transform hover:opacity-90 active:scale-[0.98]">
@@ -274,6 +309,21 @@ export default function SchemeRegistration() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            
+            {showPaymentModal && paymentParams && (
+                <PaymentModal
+                    clientSecret={paymentParams.client_secret}
+                    currency={paymentParams.currency}
+                    amount={paymentParams.amount}
+                    intentId={paymentParams.intent_id}
+                    environment={paymentParams.environment}
+                    onClose={() => setShowPaymentModal(false)}
+                    onSuccess={() => {
+                        setShowPaymentModal(false);
+                        handleFinalizeScheme();
+                    }}
+                />
+            )}            
         </div>
     );
 }

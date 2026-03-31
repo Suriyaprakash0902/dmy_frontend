@@ -31,6 +31,10 @@ async function request(endpoint: string, options: RequestInit = {}) {
         }
 
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.reload();
+            }
             const errorMessage = data?.error || data?.message || (typeof data === 'string' ? data : 'An error occurred');
             const error = new Error(errorMessage);
             (error as any).field = data?.field; // Attach field mapping for frontend elements

@@ -289,51 +289,53 @@ export default function Profile() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-sm max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37] z-10" />
-                            <div className="p-5 border-b border-[#333333] flex justify-between items-center bg-[#1A1A1A] relative z-20">
+                            <div className="p-4 sm:p-5 border-b border-[#333333] flex justify-between items-center bg-[#1A1A1A] shrink-0 z-20">
                                 <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">Identity Verification</h2>
                                 <button onClick={() => setShowProfileModal(false)} className="text-gray-500 hover:text-white transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
 
-                            <div className="p-6 flex flex-col items-center">
-                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8A6D1C] flex items-center justify-center border-4 border-black mb-4 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-                                    <User size={36} className="text-black" />
+                            <div className="overflow-y-auto w-full flex-grow custom-scrollbar">
+                                <div className="p-6 flex flex-col items-center">
+                                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8A6D1C] flex items-center justify-center border-4 border-black mb-4 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                                        <User size={36} className="text-black" />
+                                    </div>
+                                    <h3 className="text-2xl font-serif text-white tracking-wide">{user?.name}</h3>
+                                    <p className="text-[#D4AF37] text-xs font-sans font-bold tracking-widest uppercase mt-1">Elite Tier Member</p>
                                 </div>
-                                <h3 className="text-2xl font-serif text-white tracking-wide">{user?.name}</h3>
-                                <p className="text-[#D4AF37] text-xs font-sans font-bold tracking-widest uppercase mt-1">Elite Tier Member</p>
-                            </div>
 
-                            <div className="px-6 pb-6 space-y-4">
-                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
-                                    <Mail size={18} className="text-[#A3A3A3]" />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Email</p>
-                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.email || 'N/A'}</p>
+                                <div className="px-6 pb-6 space-y-4">
+                                    <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                        <Mail size={18} className="text-[#A3A3A3]" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Email</p>
+                                            <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.email || 'N/A'}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
-                                    <Phone size={18} className="text-[#A3A3A3]" />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Phone</p>
-                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.phone || 'N/A'}</p>
+                                    <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                        <Phone size={18} className="text-[#A3A3A3]" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Phone</p>
+                                            <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.phone || 'N/A'}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
-                                    <Calendar size={18} className="text-[#A3A3A3]" />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Access Granted</p>
-                                        <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                                    <div className="bg-[#1A1A1A] p-4 rounded-xl border border-[#333333] flex items-center gap-4">
+                                        <Calendar size={18} className="text-[#A3A3A3]" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[9px] text-[#888] tracking-widest uppercase mb-1">Access Granted</p>
+                                            <p className="text-[#D4AF37] text-sm truncate font-sans">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

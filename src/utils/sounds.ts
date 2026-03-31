@@ -1,7 +1,6 @@
 export const playGoldSound = (forcePlay: boolean = false) => {
     try {
-        const soundEnabled = localStorage.getItem('soundEnabled') === 'true';
-        if (!forcePlay && !soundEnabled) {
+        if (!forcePlay) {
             return;
         }
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;

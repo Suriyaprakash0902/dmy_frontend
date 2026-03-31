@@ -17,10 +17,11 @@ import { ThemeProvider } from "./theme/ThemeProvider";
 
 import { Toaster } from 'react-hot-toast';
 import Products from "./pages/Products";
+import InvoiceDetail from "./pages/InvoiceDetail";
 
 const ProtectedRoute = () => {
   const token = localStorage.getItem('token');
-  if (!token) {
+  if (!token || token === 'undefined' || token === 'null') {
     return <Navigate to="/login" replace />;
   }
   return <Outlet />;
@@ -28,7 +29,7 @@ const ProtectedRoute = () => {
 
 const AuthRoute = () => {
   const token = localStorage.getItem('token');
-  if (token) {
+  if (token && token !== 'undefined' && token !== 'null') {
     return <Navigate to="/home" replace />;
   }
   return <Outlet />;
@@ -38,7 +39,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router basename="/dmy">
-        <div className="h-[100dvh] w-full max-w-md mx-auto bg-[#050505] shadow-2xl relative flex flex-col font-sans overflow-y-auto overflow-x-hidden scroll-smooth">
+        <div className="h-[100dvh] w-full max-w-md print:max-w-none print:w-full print:h-auto print:shadow-none print:overflow-visible mx-auto bg-[#050505] print:bg-white shadow-2xl relative flex flex-col font-sans overflow-y-auto overflow-x-hidden scroll-smooth">
           <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { background: '#1a1a1a', color: '#fff', border: '1px solid #C9A84C' }, iconTheme: { primary: '#C9A84C', secondary: '#fff' } }} />
           <Routes>
             {/* Prevent logged in users from seeing auth pages */}
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/invoices" element={<Invoices />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/invoice/:paymentId" element={<InvoiceDetail />} />
               </Route>
               {/* Accessible standalone from Profile inside vault */}
               <Route path="/theme-settings" element={<ThemeSettings />} />

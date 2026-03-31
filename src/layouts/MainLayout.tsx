@@ -13,15 +13,15 @@ export default function MainLayout() {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-[var(--color-bg,#050505)] relative">
-            <div className="flex-1 pb-24">
+        <div className="flex flex-col min-h-screen bg-[var(--color-bg,#050505)] relative print:bg-white">
+            <div className="flex-1 pb-24 print:pb-0">
                 <div className="min-h-full">
                     <Outlet />
                 </div>
             </div>
 
             {/* Bottom Navigation Navbar */}
-            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[var(--color-btn,#111111)] py-4 px-6 flex justify-around items-center rounded-t-[30px] z-[99] border-t border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.8)]">
+            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[var(--color-btn,#111111)] py-4 px-6 flex justify-around items-center rounded-t-[30px] z-[99] border-t border-white/5 shadow-[0_-10px_30px_rgba(0,0,0,0.8)] print:hidden">
                 {navItems.map((item, i) => {
                     const Icon = item.icon;
                     const isActive = location.pathname.startsWith(item.path);

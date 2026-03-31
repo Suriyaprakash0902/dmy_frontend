@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, X, ShieldCheck, Sparkles, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,6 +6,7 @@ import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
+import PaymentModal from "../components/PaymentModal";
 
 export default function Scheme() {
     const navigate = useNavigate();
@@ -21,6 +22,10 @@ export default function Scheme() {
     const [buyMonth, setBuyMonth] = useState('');
     const [currentGoldRate, setCurrentGoldRate] = useState<number>();
     const [isBuying, setIsBuying] = useState(false);
+
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentParams, setPaymentParams] = useState<any>(null);
+    const [pendingPaymentId, setPendingPaymentId] = useState<number | null>(null);
 
     const fetchSchemeData = () => {
         setIsLoading(true);
@@ -99,10 +104,55 @@ export default function Scheme() {
         setConfirmBuyModal(false);
         setIsBuying(true);
         const amount = selectedScheme.amount;
-        const gramAccumulated = Number((amount / currentGoldRate).toFixed(2));
+        const gramAccumulated = Number((amount / currentGoldRate!).toFixed(2));
+
+        try {
+            // Validate first so we don't process payment if ineligible
+            await httpService.post('/api/schemes/validate-buy', {
+                schemeId: selectedScheme.id,
+                monthIndex: Number(buyMonth)
+            });
+
+            // Create a pending payment to show in history immediately
+            const pendingRes: any = await httpService.post('/api/schemes/buy', {
+                schemeId: selectedScheme.id,
+                monthIndex: Number(buyMonth),
+                goldRate: currentGoldRate,
+                gramAccumulated,
+                amountPaid: amount,
+                status: 'PENDING'
+            });
+            setPendingPaymentId(pendingRes.payment.id);
+            fetchSchemeData(); // Optmistically show in UI
+
+            const intentResponse: any = await httpService.post('/api/payment/create-intent', { amount: Number(amount) });
+            const paymentData = intentResponse.data || intentResponse;
+
+            if (paymentData && paymentData.client_secret) {
+                setPaymentParams(paymentData);
+                setShowPaymentModal(true);
+            } else {
+                toast.error("Failed to initialize payment gateway");
+            }
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || 'Payment initialization failed');
+        }
+        setIsBuying(false);
+    };
+
+    const finalizedBuyRef = useRef<boolean>(false);
+
+    const finalizeBuy = async () => {
+        if (finalizedBuyRef.current) return;
+        finalizedBuyRef.current = true;
+        setIsBuying(true);
+        const amount = paymentParams?.amount || selectedScheme.amount;
+        const gramAccumulated = Number((amount / currentGoldRate!).toFixed(2));
 
         try {
             await httpService.post('/api/schemes/buy', {
+                paymentId: pendingPaymentId,
                 schemeId: selectedScheme.id,
                 monthIndex: Number(buyMonth),
                 goldRate: currentGoldRate,
@@ -124,9 +174,9 @@ export default function Scheme() {
             });
             fetchSchemeData();
         } catch (error: any) {
-            // Log as FAILED
             try {
                 await httpService.post('/api/schemes/buy', {
+                    paymentId: pendingPaymentId,
                     schemeId: selectedScheme.id,
                     monthIndex: Number(buyMonth),
                     goldRate: currentGoldRate,
@@ -139,6 +189,7 @@ export default function Scheme() {
             toast.error(error.message || 'Failed to complete transaction', { duration: 5000 });
         } finally {
             setIsBuying(false);
+            finalizedBuyRef.current = false;
         }
     };
 
@@ -203,8 +254,11 @@ export default function Scheme() {
                             className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.05)] to-transparent skew-x-[-30deg]"
                         />
 
-                        <div className="relative z-10 flex justify-between items-start">
-                            <ShieldCheck className="text-[#D4AF37]" size={28} />
+                        <div className="relative z-10 flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:items-center">
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck className="text-[#D4AF37]" size={28} />
+                                <span className="text-[#D4AF37] font-serif tracking-widest uppercase">{selectedScheme.schemeId || selectedScheme.id.substring(0,8).toUpperCase()}</span>
+                            </div>
                             <span className="text-[10px] font-sans tracking-[0.2em] text-[#D4AF37] uppercase bg-black/40 px-3 py-1 rounded-full border border-[#D4AF37]/30">Active Plan</span>
                         </div>
 
@@ -299,6 +353,7 @@ export default function Scheme() {
                         <div className="space-y-3">
                             {selectedScheme.payments?.slice().reverse().map((p: any, i: number) => {
                                 const rawDate = new Date(p.createdAt || p.paymentDate);
+                                const isPending = p.status === 'PENDING';
                                 const isFailed = p.status === 'FAILED';
                                 return (
                                     <motion.div
@@ -306,14 +361,20 @@ export default function Scheme() {
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5 + Math.min(i * 0.1, 0.5) }}
                                         key={p.id || i}
-                                        className="bg-[#111111] border border-[#D4AF37]/30 rounded-xl p-4 flex justify-between items-center shadow-[0_0_20px_rgba(212,175,55,0.05)] relative overflow-hidden"
+                                        onClick={() => {
+                                            if (!isFailed && !isPending && p.id) {
+                                                playGoldSound();
+                                                navigate(`/invoice/${p.id}`);
+                                            }
+                                        }}
+                                        className={`bg-[#111111] border border-[#D4AF37]/30 rounded-xl p-4 flex justify-between items-center shadow-[0_0_20px_rgba(212,175,55,0.05)] relative overflow-hidden ${(!isFailed && !isPending) ? 'cursor-pointer hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] hover:border-[#D4AF37]/60 transition-all' : ''}`}
                                     >
                                         <div className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-[#D4AF37]/50 to-transparent" />
                                         <div className="pl-2">
                                             <p className="text-white font-bold font-serif mb-1 flex items-center gap-2">
                                                 Month {p.monthIndex}
-                                                <span className={`text-[9px] font-sans px-2 py-0.5 rounded-sm tracking-widest uppercase ${isFailed ? 'bg-[#3A1010] text-[#FF4444]' : 'bg-[#102410] text-[#44FF44]'}`}>
-                                                    {isFailed ? 'FAILED' : 'PAID'}
+                                                <span className={`text-[9px] font-sans px-2 py-0.5 rounded-sm tracking-widest uppercase ${isFailed ? 'bg-[#3A1010] text-[#FF4444]' : isPending ? 'bg-[#2E1A0A] text-[#FFA500]' : 'bg-[#102410] text-[#44FF44]'}`}>
+                                                    {isFailed ? 'FAILED' : isPending ? 'PROCESSING' : 'PAID'}
                                                 </span>
                                             </p>
                                             <p className="text-[#666] text-xs font-sans">{rawDate.toLocaleDateString()}</p>
@@ -321,6 +382,8 @@ export default function Scheme() {
                                         <div className="text-right">
                                             {isFailed ? (
                                                 <p className="text-[#FF4444] text-[10px] tracking-widest uppercase mt-4">Review required</p>
+                                            ) : isPending ? (
+                                                <p className="text-[#FFA500] text-[10px] tracking-widest uppercase mt-4">Awaiting Payment</p>
                                             ) : (
                                                 <>
                                                     <p className="text-[#D4AF37] font-bold">{Number(p.gramAccumulated).toFixed(2)} g</p>
@@ -380,6 +443,42 @@ export default function Scheme() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+                
+                {showPaymentModal && paymentParams && (
+                    <PaymentModal
+                        clientSecret={paymentParams.client_secret}
+                        currency={paymentParams.currency}
+                        amount={paymentParams.amount}
+                        intentId={paymentParams.intent_id}
+                        environment={paymentParams.environment}
+                        onClose={async () => {
+                            setShowPaymentModal(false);
+                            if (pendingPaymentId) {
+                                try {
+                                    const amount = selectedScheme.amount;
+                                    const gramAccumulated = Number((amount / currentGoldRate!).toFixed(2));
+                                    await httpService.post('/api/schemes/buy', {
+                                        paymentId: pendingPaymentId,
+                                        schemeId: selectedScheme.id,
+                                        monthIndex: Number(buyMonth),
+                                        goldRate: currentGoldRate,
+                                        gramAccumulated,
+                                        amountPaid: amount,
+                                        status: 'FAILED'
+                                    });
+                                    setPendingPaymentId(null);
+                                    fetchSchemeData();
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            }
+                        }}
+                        onSuccess={() => {
+                            setShowPaymentModal(false);
+                            finalizeBuy();
+                        }}
+                    />
+                )}
             </div >
         );
     }
@@ -431,7 +530,7 @@ export default function Scheme() {
                                 <div className="relative z-10 flex justify-between items-start">
                                     <div>
                                         <h3 className="text-[#D4AF37] font-serif tracking-wide text-lg drop-shadow-md group-hover:text-[#FFF5D1] transition-colors">{scheme.name || 'Elite Plan'}</h3>
-                                        <p className="text-[#666] font-sans text-[10px] tracking-widest uppercase mt-0.5">Scheme ID: {scheme.id.substring(0, 8).toUpperCase()}</p>
+                                        <p className="text-[#666] font-sans text-[10px] tracking-widest uppercase mt-0.5">Scheme ID: {scheme.schemeId || scheme.id.substring(0, 8).toUpperCase()}</p>
                                     </div>
                                     <div className="bg-black/40 border border-[#D4AF37]/30 p-2 rounded-full group-hover:bg-[#D4AF37]/20 transition-colors">
                                         <ChevronRight size={16} className="text-[#D4AF37]" />
@@ -487,24 +586,24 @@ export default function Scheme() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
                         >
                             <motion.div
                                 initial={{ y: 50, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 50, opacity: 0 }}
                                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
+                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                             >
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
-                                <div className="p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A]">
+                                <div className="p-4 sm:p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A] shrink-0 z-10">
                                     <h2 className="text-sm uppercase tracking-widest font-bold text-[#D4AF37]">The Agreement</h2>
                                     <button onClick={() => setShowTerms(false)} className="text-gray-500 hover:text-white transition-colors">
                                         <X size={20} />
                                     </button>
                                 </div>
 
-                                <div className="p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 max-h-[60vh] leading-relaxed custom-scrollbar">
+                                <div className="p-4 sm:p-5 overflow-y-auto font-sans text-xs text-[#999] space-y-4 flex-grow custom-scrollbar leading-relaxed">
                                     <p>1) Members who fail to make a payment in a given month will have their scheme period extended for the number of months they have not paid.</p>
                                     <p>2) Members who make their monthly payments ahead of time will only receive their 13th month bonus at the end of their plan period.</p>
                                     <p>3) Members discontinuing or pre-closing halfway through the scheme will not be eligible for any benefits.</p>
@@ -517,7 +616,7 @@ export default function Scheme() {
                                     <p>10) DMY Jewellery Pte Ltd gives full guarantee to members.</p>
                                 </div>
 
-                                <div className="p-5 border-t border-[#333] bg-[#1A1A1A]">
+                                <div className="p-4 sm:p-5 border-t border-[#333] bg-[#1A1A1A] shrink-0 z-10 w-full">
                                     <label className="flex items-center gap-3 cursor-pointer mb-5">
                                         <input
                                             type="checkbox"
