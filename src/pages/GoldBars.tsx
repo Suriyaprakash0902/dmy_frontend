@@ -6,7 +6,6 @@ import httpService from "../services/httpService";
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
-import PaymentModal from "../components/PaymentModal";
 
 interface Bullion {
     id: string;
@@ -84,9 +83,6 @@ export default function GoldBars() {
     const [quantities, setQuantities] = useState<Record<string, number>>({});
     const [enquiryStatus, setEnquiryStatus] = useState<Record<string, string>>({});
     const [confirmModal, setConfirmModal] = useState<Bullion | null>(null);
-
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [paymentParams, setPaymentParams] = useState<any>(null);
 
     const currentPricing = goldPricing.find(p => p.cat_name && p.cat_name.includes(karat === '22' ? '22 KARAT' : '24 KARAT')) || { gst: "0", workmanship: "0" };
     const gstPercent = parseFloat(currentPricing.gst) || 0;
@@ -326,13 +322,13 @@ export default function GoldBars() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[999] flex items-center justify-center p-4"
                     >
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl max-w-sm w-full p-8 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-hidden"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl max-w-sm w-full p-8 shadow-[0_0_50px_rgba(212,175,55,0.15)] relative overflow-y-auto max-h-[75vh] mb-24 custom-scrollbar"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
 
@@ -397,7 +393,7 @@ export default function GoldBars() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            
+
 
         </div>
     );

@@ -410,7 +410,7 @@ export default function Scheme() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4"
                         >
                             <motion.div
                                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -586,14 +586,14 @@ export default function Scheme() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
+                            className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
                         >
                             <motion.div
                                 initial={{ y: 50, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 50, opacity: 0 }}
                                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
+                                className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-lg max-h-[75vh] mb-24 flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                             >
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
                                 <div className="p-4 sm:p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A] shrink-0 z-10">
@@ -718,14 +718,14 @@ export default function Scheme() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                        className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
                     >
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-[90%] max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
+                            className="bg-[#111111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-[90%] max-h-[75vh] mb-24 flex flex-col shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden relative"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] via-[#FFF38E] to-[#D4AF37]" />
                             <div className="p-5 border-b border-[#333] flex justify-between items-center bg-[#1A1A1A]">

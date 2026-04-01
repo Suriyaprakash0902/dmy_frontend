@@ -87,7 +87,7 @@ export default function PaymentModal({ clientSecret, currency, amount, intentId,
                     </button>
                 </div>
 
-                <div className="p-4 bg-white/5 flex-grow w-full overflow-y-auto custom-scrollbar" style={{ minHeight: 'min(70vh, 500px)' }}>
+                <div className="p-4 bg-white/5 flex-grow w-full overflow-y-auto overscroll-y-none custom-scrollbar" style={{ minHeight: 'min(70vh, 500px)' }}>
                     <div className="mb-4 text-center">
                         <p className="text-[10px] uppercase tracking-widest text-[#A3A3A3]">Total Amount</p>
                         <p className="text-2xl font-bold text-[#D4AF37]">S$ {amount.toFixed(2)}</p>
