@@ -1,11 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import vendorService from '../services/vendorService';
 
 export default function Landing() {
     const navigate = useNavigate();
-    const handleStart = () => {
+    const handleStart = async () => {
         if (localStorage.getItem('soundEnabled') === null) {
             localStorage.setItem('soundEnabled', 'false');
+        }
+        try {
+            await vendorService.fetchVendorToken();
+        } catch(e) {
+            console.error("Vendor token fetch failed", e);
         }
         navigate('/login');
     };

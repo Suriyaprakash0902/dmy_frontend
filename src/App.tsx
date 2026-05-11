@@ -38,7 +38,7 @@ const AuthRoute = () => {
 function App() {
   return (
     <ThemeProvider>
-      <Router basename="/dmy">
+      <Router basename="/">
         <div className="h-[100dvh] w-full max-w-md print:max-w-none print:w-full print:h-auto print:shadow-none print:overflow-visible mx-auto bg-[#050505] print:bg-white shadow-2xl relative flex flex-col font-sans overflow-y-auto overflow-x-hidden scroll-smooth">
           <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 4000, style: { background: '#1a1a1a', color: '#fff', border: '1px solid #C9A84C' }, iconTheme: { primary: '#C9A84C', secondary: '#fff' } }} />
           <Routes>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon, ArrowLeft, CheckCircle2, XCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import httpService from '../services/httpService';
+import vendorService from '../services/vendorService';
 import toast from 'react-hot-toast';
 import { playGoldSound } from '../utils/sounds';
 
@@ -114,13 +115,57 @@ export default function Signup() {
         if (validate()) {
             setIsSubmitting(true);
             try {
-                // Ensure the exact verified values are passed
+                // Register vendor first to get vendor ID
+                let vendorUserId = null;
+                try {
+                    const nameParts = form.name.trim().split(' ');
+                    const firstName = nameParts[0] || 'User';
+                    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : firstName;
+                    
+                    const vendorPayload = {
+                        Email: form.email,
+                        Username: form.email,
+                        FirstName: firstName,
+                        LastName: lastName,
+                        Password: form.password,
+                        ConfirmPassword: form.confirmPassword
+                    };
+                    const vendorResponse = await vendorService.createUser(vendorPayload);
+                    if (vendorResponse && vendorResponse.id) {
+                        vendorUserId = vendorResponse.id;
+                    }
+                } catch(vendorErr: any) {
+                    console.error("Vendor registration failed", vendorErr);
+                    let errorMsg = vendorErr.message || "Failed to register vendor account.";
+                    try {
+                        const parsedErr = JSON.parse(errorMsg);
+                        if (parsedErr.modelState) {
+                            const messages = [];
+                            for (const key in parsedErr.modelState) {
+                                messages.push(...parsedErr.modelState[key]);
+                            }
+                            if (messages.length > 0) {
+                                errorMsg = messages.join(' | ');
+                            }
+                        } else if (parsedErr.message) {
+                            errorMsg = parsedErr.message;
+                        }
+                    } catch (e) {
+                        // Not JSON, use as is
+                    }
+                    toast.error(`Vendor Error: ${errorMsg}`);
+                    setIsSubmitting(false);
+                    return; // Block local registration
+                }
+                // Ensure the exact verified values are passed, including vendor userID
                 const finalForm = {
                     ...form,
-                    phone: '+65' + form.phone
+                    phone: '+65' + form.phone,
+                    userID: vendorUserId
                 }
                 const data: any = await httpService.post('/api/auth/register', finalForm);
                 if (data.token) localStorage.setItem('token', data.token);
+
                 toast.success('Account Created');
                 navigate('/home');
             } catch (error: any) {

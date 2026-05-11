@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { motion } from 'framer-motion';
 import httpService from '../services/httpService';
+import vendorService from '../services/vendorService';
 import toast from 'react-hot-toast';
 import { playGoldSound } from '../utils/sounds';
 
@@ -54,6 +55,7 @@ export default function Login() {
 
             const data: any = await httpService.post('/api/auth/login/password', payload);
             localStorage.setItem('token', data.token);
+
             toast.success('Access Granted.', { style: { background: '#0B0B0B', color: '#D4AF37' } });
             navigate('/home');
         } catch (error: any) {
