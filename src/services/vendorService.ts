@@ -57,7 +57,89 @@ export const vendorService = {
             throw error;
         }
     },
-
+    createSchemeMember: async (data: any) => {
+        try {
+            const token = localStorage.getItem('vendor_admin_token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${VENDOR_API_URL}/nextapi/System/SEAPOSSchemeMember/SaveData`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to create scheme member');
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
+        } catch (error) {
+            console.error('Vendor createSchemeMember error:', error);
+            throw error;
+        }
+    },
+    createSchemeRegistration: async (data: any) => {
+        try {
+            const token = localStorage.getItem('vendor_admin_token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${VENDOR_API_URL}/nextapi/System/SEAPOSSchemeRegistration/SAVEDATA`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to create scheme registration');
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
+        } catch (error) {
+            console.error('Vendor createSchemeRegistration error:', error);
+            throw error;
+        }
+    },
+    createSchemeReceipt: async (data: any) => {
+        try {
+            const token = localStorage.getItem('vendor_admin_token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${VENDOR_API_URL}/nextapi/System/SEAGeneralLedgerSchemeReceipt/SaveData`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to create scheme receipt');
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
+        } catch (error) {
+            console.error('Vendor createSchemeReceipt error:', error);
+            throw error;
+        }
+    },
+    getSalesmen: async () => {
+        try {
+            const token = localStorage.getItem('vendor_admin_token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${VENDOR_API_URL}/nextapi/GETSalesManList`, {
+                method: 'GET',
+                headers,
+            });
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to fetch salesmen');
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : [];
+        } catch (error) {
+            console.error('Vendor getSalesmen error:', error);
+            throw error;
+        }
+    },
 };
 
 export default vendorService;

@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, X, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
+import vendorService from "../services/vendorService";
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
@@ -27,6 +28,22 @@ export default function SchemeRegistration() {
     const [anniversary, setAnniversary] = useState('');
     const [amount, setAmount] = useState('100');
     const [agreeTerm, setAgreeTerm] = useState(false);
+    const [salesmen, setSalesmen] = useState<any[]>([]);
+    const [salesmanCode, setSalesmanCode] = useState('');
+
+    useEffect(() => {
+        vendorService.getSalesmen()
+            .then(data => {
+                const list = data?.resultSets?.[0] || (Array.isArray(data) ? data : []);
+                if (list && Array.isArray(list)) {
+                    setSalesmen(list);
+                    if (list.length > 0) {
+                        setSalesmanCode(list[0].code.toString());
+                    }
+                }
+            })
+            .catch(err => console.error("Failed to load salesmen", err));
+    }, []);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -53,10 +70,107 @@ export default function SchemeRegistration() {
         
         setIsSubmitting(true);
         try {
-            const payload = {
+            const payload: any = {
                 name, nric, blockNo, floorNo, unitNo, street, postalCode, country: 'Singapore',
                 phone, dob, anniversary, period: 12, amount: Number(amount)
             };
+
+            // Call Vendor APIs for the first month
+            try {
+                // 1. Create Scheme Member
+                const udfCodeMatch = name.match(/\b\w/g);
+                const udfCode = udfCodeMatch ? udfCodeMatch.join('').substring(0, 2).toUpperCase() : 'CS';
+                const schemeMemberPayload = {
+                    udfCode,
+                    name,
+                    scheduleCode: 1008968,
+                    freeze: 0,
+                    approvalProcesses: [],
+                    attributeValues: [],
+                    noteDetails: [],
+                    addressDetails: [{
+                        isDefault: 1, 
+                        addressName: " WORK PLACE ", 
+                        addressTypeCode: 1001001,
+                       cityCode: 1001805,
+                    countryCode: 1001804,
+                    CityCode: 1001805,
+                    CountryCode: 1001804,
+                        zipCode: postalCode || "85963", 
+                        phoneNo: "", 
+                        email: "",
+                        gsmNo: phone || "9724004894", 
+                        code: 0, 
+                        canDelete: true, 
+                        canEdit: true
+                    }],
+                    arapAccountPersonalDetails: [{
+                        dateofBirth: dob ? `${dob}T00:00:00` : "0001-01-01T00:00:00",
+                        identificationNo: nric || "", 
+                        defaultRPModeCode: 1, 
+                        accountCode: 100409,
+                        Level5Code: 100, 
+                        anniversaryDate: anniversary ? `${anniversary}T00:00:00` : "0001-01-01T00:00:00",
+                        code: 0, 
+                        canDelete: true, 
+                        canEdit: true
+                    }],
+                    cityCode: 1001805,
+                    countryCode: 1001804,
+                    CityCode: 1001805,
+                    CountryCode: 1001804,
+                    City: "Singapore",
+                    Country: "Singapore",
+                    city: "Singapore",
+                    country: "Singapore",
+                    code: 0, canDelete: false, canEdit: true
+                };
+                
+                const memberRes: any = await vendorService.createSchemeMember(schemeMemberPayload);
+                const memberCode = memberRes?.memberCode || memberRes?.id || memberRes?.code;
+
+                if (memberCode) {
+                    // 2. Create Scheme Registration
+                    const schemeRegPayload = {
+                        categoryCode: 100306, itemTypeCode: 1,
+                        schemeStartDate: new Date().toISOString().split('T')[0],
+                        maturityDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                        memberCode: memberCode,
+                        approveFlag: 1, schemeCode: 2, registrationDefinitionCode: 1008970,
+                        memberStatus: 0, unit: Number(amount) / 100, ChangeMetalRate: 0, IsFixedSchemeType: 1, schemeSetupDetailCode: 100896900001,
+                        freeze: 0, salesmanCode: Number(salesmanCode) || 1001030, 
+                        unitAmountBC: 100,
+                        attributeValues: [], approvalProcesses: [],
+                        noteDetails: [], code: 0, canDelete: true, canEdit: true,
+                        registrationNo: ""
+                    };
+                    const schemeRegRes: any = await vendorService.createSchemeRegistration(schemeRegPayload);
+                    
+                    // Vendor API explicitly expects the memberCode to be passed as accountCode in the Receipt API
+                    const vendorAccountCode = memberCode; 
+                    const vendorRegistrationCode = schemeRegRes?.memberSchemeRegistrationCode || schemeRegRes?.registrationCode || schemeRegRes?.code;
+                    
+                    if (vendorAccountCode) payload.vendorAccountCode = vendorAccountCode;
+                    if (vendorRegistrationCode) payload.vendorRegistrationCode = vendorRegistrationCode;
+                } else {
+                    console.warn("Could not extract memberCode from vendor response", memberRes);
+                }
+            } catch (vendorErr: any) {
+                console.error("Vendor Scheme Registration Error", vendorErr);
+                let errorMsg = vendorErr.message || "Failed to register scheme in vendor system.";
+                try {
+                    const parsedErr = JSON.parse(errorMsg);
+                    if (parsedErr.message) {
+                        errorMsg = parsedErr.message;
+                    }
+                } catch (e) {
+                    // Not JSON, use as is
+                }
+                toast.error(`Vendor Error: ${errorMsg}`);
+                setIsSubmitting(false);
+                finalizedRef.current = false;
+                return; // BLOCK LOCAL SAVE ON ERROR AS REQUESTED
+            }
 
             await httpService.post('/api/schemes/apply', payload);
             playGoldSound(true);
@@ -237,6 +351,17 @@ export default function SchemeRegistration() {
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block text-[10px] tracking-widest uppercase text-[#A3A3A3] mb-1.5">Salesman</label>
+                            <select value={salesmanCode} onChange={(e) => setSalesmanCode(e.target.value)} required className="w-full bg-[#1A1A1A] border border-[#333333] text-[#D4AF37] rounded-xl px-4 py-3 focus:outline-none focus:border-[#D4AF37] font-sans text-sm appearance-none transition-colors">
+                                <option value="" disabled>Select a Salesman</option>
+                                {salesmen.map((salesman: any) => (
+                                    <option key={salesman.code} value={salesman.code} className="bg-black text-[#D4AF37]">
+                                        {salesman.salesmanName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="pt-2">
                             <label className="flex items-start gap-3 cursor-pointer group">
                                 <input type="checkbox" checked={agreeTerm} onChange={(e) => { if (e.target.checked) playGoldSound(); setAgreeTerm(e.target.checked); }} className="mt-1 w-4 h-4 rounded border-gray-600 bg-black checked:bg-[#D4AF37] focus:ring-0 accent-[#D4AF37]" />

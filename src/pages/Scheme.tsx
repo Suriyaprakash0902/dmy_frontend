@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, X, ShieldCheck, Sparkles, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import httpService from "../services/httpService";
+import vendorService from "../services/vendorService";
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { playGoldSound } from "../utils/sounds";
@@ -112,7 +113,17 @@ export default function Scheme() {
                 schemeId: selectedScheme.id,
                 monthIndex: Number(buyMonth)
             });
-
+            console.log("inside buy function", {
+                amount,
+                amountPaid: amount,
+                gramAccumulated,
+                monthIndex: Number(buyMonth),
+                schemeId: selectedScheme.id,
+                selectedScheme: selectedScheme
+            });
+            // Call Vendor API for Scheme Receipt HERE
+       
+            console.log("1")
             // Create a pending payment to show in history immediately
             const pendingRes: any = await httpService.post('/api/schemes/buy', {
                 schemeId: selectedScheme.id,
@@ -151,6 +162,43 @@ export default function Scheme() {
         const gramAccumulated = Number((amount / currentGoldRate!).toFixed(2));
 
         try {
+            if (selectedScheme.vendorRegistrationCode) {
+                try {
+                    const receiptPayload = {
+                        level5Code: 100, yearCode: 1010, voucherTypeCode: 613, documentCurrencyCode: 1001004,
+                        documentExRate: 1.0, amountDC: Number(amount), amountBC: Number(amount),
+                        approveFlag: 1, documentDate: new Date().toISOString().split('T')[0] + "T00:00:00",
+                        accountCode: selectedScheme.vendorAccountCode || 0,
+                        memberSchemeRegistrationCode: selectedScheme.vendorRegistrationCode,
+                        accountExRate: 1.0, documentSeriesCode: 1, memberMetalRate: 0, fixedUnfixedType: 1, approvalProcesses: [],
+                        attributeValues: [], noteDetails: [],
+                        receiptDetails: [{
+                            documentExRate: 1.0, modeCode: 2, accountCode: 1002076,
+                            accountExRate: 1.0, rpCurrencyCode: 1001004, rpExRate: 1.0,
+                            amountRP: Number(amount), chequeDate: new Date().toISOString().split('T')[0] + "T00:00:00",
+                            costCenterAllocationDetails: [], bankChargesDetails: [],
+                            rpTypeCode: 0, code: 0, canDelete: true, canEdit: true
+                        }],
+                        code: 0, canDelete: true, canEdit: true
+                    };
+                    await vendorService.createSchemeReceipt(receiptPayload);
+                } catch (vendorErr: any) {
+                    console.error("Vendor Scheme Receipt Error", vendorErr);
+                    let errorMsg = vendorErr.message || "Failed to create receipt in vendor system.";
+                    try {
+                        const parsedErr = JSON.parse(errorMsg);
+                        if (parsedErr.message) {
+                            errorMsg = parsedErr.message;
+                        }
+                    } catch (e) {
+                        // Not JSON, use as is
+                    }
+                    toast.error(`Vendor Error: ${errorMsg}`);
+                    setIsBuying(false);
+                    return; // BLOCK LOCAL SAVE ON ERROR AS REQUESTED
+                }
+            }
+            console.log("2")
             await httpService.post('/api/schemes/buy', {
                 paymentId: pendingPaymentId,
                 schemeId: selectedScheme.id,
@@ -160,6 +208,7 @@ export default function Scheme() {
                 amountPaid: amount,
                 status: 'PAID'
             });
+
             playGoldSound(true);
             confetti({
                 particleCount: 200,
@@ -175,6 +224,7 @@ export default function Scheme() {
             fetchSchemeData();
         } catch (error: any) {
             try {
+                  console.log("3")
                 await httpService.post('/api/schemes/buy', {
                     paymentId: pendingPaymentId,
                     schemeId: selectedScheme.id,
@@ -457,6 +507,7 @@ export default function Scheme() {
                                 try {
                                     const amount = selectedScheme.amount;
                                     const gramAccumulated = Number((amount / currentGoldRate!).toFixed(2));
+                                      console.log("4")
                                     await httpService.post('/api/schemes/buy', {
                                         paymentId: pendingPaymentId,
                                         schemeId: selectedScheme.id,

@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { motion } from 'framer-motion';
 import httpService from '../services/httpService';
-import vendorService from '../services/vendorService';
 import toast from 'react-hot-toast';
 import { playGoldSound } from '../utils/sounds';
 
