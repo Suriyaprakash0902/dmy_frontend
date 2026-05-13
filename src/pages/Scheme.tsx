@@ -28,33 +28,63 @@ export default function Scheme() {
     const [paymentParams, setPaymentParams] = useState<any>(null);
     const [pendingPaymentId, setPendingPaymentId] = useState<number | null>(null);
 
-    const fetchSchemeData = () => {
+    const fetchSchemeData = async () => {
+        console.log("hi")
         setIsLoading(true);
-        httpService.get('/api/schemes/my-scheme')
-            .then((data: any) => {
-                if ((data.hasSchemes && data.schemes && data.schemes.length > 0) || (data.hasScheme && data.scheme)) {
-                    setHasSchemes(true);
+        try {
+            const data: any = await httpService.get('/api/schemes/my-scheme');
+            if ((data.hasSchemes && data.schemes && data.schemes.length > 0) || (data.hasScheme && data.scheme)) {
+                setHasSchemes(true);
 
-                    const loadedSchemes = data.schemes || [data.scheme];
-                    setSchemes(loadedSchemes);
+                let loadedSchemes = data.schemes || [data.scheme];
 
-                    // If a scheme was already selected, update its data
-                    if (selectedScheme) {
-                        const updated = loadedSchemes.find((s: any) => s.id === selectedScheme.id);
-                        if (updated) {
-                            setSelectedScheme(updated);
-                            updateBuyMonth(updated);
+                // Sync offline payments
+                let needsRefresh = false;
+                for (const scheme of loadedSchemes) {
+                    // Try to sync if we have a registration code
+                    if (scheme.vendorAccountCode || scheme.schemeId) {
+                        try {
+                            const memberCode = scheme.vendorAccountCode; // Fallback to test code if needed
+                            const offlineRes = await vendorService.getOfflinePayments(memberCode);
+                            const offlineDataArray = offlineRes?.resultSets?.[0];
+                            if (offlineDataArray && Array.isArray(offlineDataArray)) {
+                                const syncRes: any = await httpService.post('/api/schemes/sync-offline', {
+                                    schemeId: scheme.id,
+                                    offlineData: offlineDataArray
+                                });
+                                if (syncRes && syncRes.addedCount > 0) {
+                                    needsRefresh = true;
+                                }
+                            }
+                        } catch (syncErr) {
+                            console.error('Failed to sync offline payments for', scheme.id, syncErr);
                         }
                     }
-                } else {
-                    setHasSchemes(false);
                 }
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setIsLoading(false);
-            });
+
+                if (needsRefresh) {
+                    const refreshData: any = await httpService.get('/api/schemes/my-scheme');
+                    loadedSchemes = refreshData.schemes || [refreshData.scheme];
+                }
+
+                setSchemes(loadedSchemes);
+
+                // If a scheme was already selected, update its data
+                if (selectedScheme) {
+                    const updated = loadedSchemes.find((s: any) => s.id === selectedScheme.id);
+                    if (updated) {
+                        setSelectedScheme(updated);
+                        updateBuyMonth(updated);
+                    }
+                }
+            } else {
+                setHasSchemes(false);
+            }
+            setIsLoading(false);
+        } catch (err) {
+            console.error(err);
+            setIsLoading(false);
+        }
     };
 
     const updateBuyMonth = (scheme: any) => {

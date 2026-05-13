@@ -140,6 +140,26 @@ export const vendorService = {
             throw error;
         }
     },
+    getOfflinePayments: async (schemeMemberCode: string) => {
+        try {
+            const token = localStorage.getItem('vendor_admin_token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${VENDOR_API_URL}/nextapi/Get_Scheme_Member_Payment_Data?SchemeMemberCode=${encodeURIComponent(schemeMemberCode)}`, {
+                method: 'GET',
+                headers,
+            });
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to fetch offline payments');
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : [];
+        } catch (error) {
+            console.error('Vendor getOfflinePayments error:', error);
+            throw error;
+        }
+    },
 };
 
 export default vendorService;
