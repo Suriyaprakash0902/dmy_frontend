@@ -166,7 +166,10 @@ export default function Scheme() {
             setPendingPaymentId(pendingRes.payment.id);
             fetchSchemeData(); // Optmistically show in UI
 
-            const intentResponse: any = await httpService.post('/api/payment/create-intent', { amount: Number(amount) });
+            const intentResponse: any = await httpService.post('/api/payment/create-intent', { 
+                amount: Number(amount),
+                paymentId: pendingRes.payment.id
+            });
             const paymentData = intentResponse.data || intentResponse;
 
             if (paymentData && paymentData.client_secret) {
